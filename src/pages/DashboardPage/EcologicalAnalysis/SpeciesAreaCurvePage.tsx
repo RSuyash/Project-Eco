@@ -6,7 +6,7 @@ const SpeciesAreaCurvePage = () => {
   return (
     <Box>
       <Breadcrumb />
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: 3, mt: 0 }}>
         <Typography variant="h4" gutterBottom>
           Species-Area Curve
         </Typography>

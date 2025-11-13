@@ -79,6 +79,44 @@ const getTheme = (mode: 'light' | 'dark') => {
       },
       MuiCssBaseline: {
         styleOverrides: (theme) => `
+          /* Custom Scrollbar for Webkit browsers (even sleeker) */
+          ::-webkit-scrollbar {
+            width: 4px; /* Even thinner */
+          }
+
+          ::-webkit-scrollbar-track {
+            background: transparent; /* Still transparent */
+          }
+
+          ::-webkit-scrollbar-thumb {
+            background: rgba(128, 128, 128, 0.1); /* Very subtle grey, almost invisible */
+            border-radius: 2px; /* Smaller rounded ends */
+            transition: background 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Smooth transitions */
+            opacity: 0; /* Start almost invisible */
+          }
+
+          ::-webkit-scrollbar-thumb:hover {
+            background: ${theme.palette.primary.main}; /* Accent color on hover */
+            opacity: 1; /* Fully visible on hover */
+          }
+
+          /* Hide scrollbar buttons for Webkit browsers */
+          ::-webkit-scrollbar-button {
+            display: none;
+            height: 0;
+            width: 0;
+          }
+
+          /* Custom Scrollbar for Firefox */
+          html {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(128, 128, 128, 0.1) transparent; /* thumb and track color, very subtle */
+          }
+          /* For Firefox, to make it appear on hover (best effort with CSS) */
+          html:hover {
+            scrollbar-color: ${theme.palette.primary.main} transparent;
+          }
+
           code {
             font-family: 'Fira Code', monospace;
             background-color: ${theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.08)'};

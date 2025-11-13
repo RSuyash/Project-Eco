@@ -14,6 +14,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import ForestIcon from '@mui/icons-material/Forest';
 import Sidebar from '../../components/Sidebar';
 import EcologicalAnalysisPage from './EcologicalAnalysisPage';
 import VegetationPlottingPage from './EcologicalAnalysis/VegetationPlottingPage';
@@ -24,6 +25,10 @@ import FloraPage from './EcologicalAnalysis/FloraPage';
 import FaunaPage from './EcologicalAnalysis/FaunaPage';
 import LandscapePage from './EcologicalAnalysis/LandscapePage';
 import DataAnalysisPage from './EcologicalAnalysis/DataAnalysisPage';
+import ProjectsPage from './ProjectsPage';
+import ProjectViewPage from './ProjectViewPage';
+import NewProjectPage from './NewProjectPage';
+import CanopyAnalysisPage from './CanopyAnalysisPage';
 import { getAppBarStyles, getMenuButtonStyles, getMainBoxStyles, rootBoxStyle } from './DashboardPage.styles';
 import { useAppTheme } from '../../contexts/ThemeContext';
 
@@ -54,8 +59,37 @@ const DashboardPage = () => {
           >
             <MenuIcon />
           </IconButton>
+          
+          {/* App Title/Logo Section */}
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              backgroundColor: 'background.paper',
+              borderRadius: '8px',
+              padding: '6px 12px',
+              boxShadow: 1,
+              mr: 2,
+              height: '40px'
+            }}
+          >
+            <ForestIcon sx={{ color: 'primary.main', mr: 1 }} />
+            <Typography 
+              variant="h6" 
+              noWrap 
+              component="div"
+              sx={{ 
+                fontWeight: 700,
+                color: 'text.primary',
+                fontSize: '1.2rem'
+              }}
+            >
+              EcoData
+            </Typography>
+          </Box>
+          
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Dashboard
+            Ecological Analysis
           </Typography>
           <IconButton
             color="inherit"
@@ -91,6 +125,11 @@ const DashboardPage = () => {
           <Route path="ecological-analysis/fauna" element={<FaunaPage />} />
           <Route path="ecological-analysis/landscape" element={<LandscapePage />} />
           <Route path="ecological-analysis/data-analysis" element={<DataAnalysisPage />} />
+          <Route path="projects" element={<ProjectsPage />} />
+          <Route path="projects/:id/view" element={<ProjectViewPage />} />
+          <Route path="projects/:id/edit" element={<ProjectsPage />} />
+          <Route path="projects/new" element={<NewProjectPage />} />
+          <Route path="projects/:id/canopy-analysis" element={<CanopyAnalysisPage />} />
         </Routes>
       </Box>
     </Box>

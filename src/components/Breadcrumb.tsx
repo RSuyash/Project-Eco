@@ -34,14 +34,17 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
     const pathnames = location.pathname.split('/').filter(x => x);
     const breadcrumbs: BreadcrumbItem[] = [{ label: homeLabel, path: '/' }];
     
-    // Add dashboard as the next level
+    // Add dashboard as the next level 
     if (pathnames.includes('dashboard')) {
       breadcrumbs.push({ label: 'Dashboard', path: '/dashboard' });
     }
     
     // Add ecological analysis if present in path
     if (pathnames.includes('ecological-analysis')) {
-      breadcrumbs.push({ label: 'Ecological Analysis', path: '/dashboard/ecological-analysis' });
+      // Don't duplicate if already in the path structure
+      if (!breadcrumbs.some(b => b.label === 'Ecological Analysis')) {
+        breadcrumbs.push({ label: 'Ecological Analysis', path: '/dashboard/ecological-analysis' });
+      }
     }
     
     // Map remaining path segments to labels
@@ -58,13 +61,25 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
       }
     });
     
-    return breadcrumbs;
+    // Filter out duplicate entries
+    return breadcrumbs.filter((item, index, self) => 
+      index === self.findIndex(t => t.label === item.label)
+    );
   };
   
   const breadcrumbs = items.length > 0 ? items : generateBreadcrumbs();
 
   return (
-    <Box sx={{ px: 3 }}>
+    <Box sx={{ 
+      px: 3, 
+      pt: 2,
+      pb: 1,
+      backgroundColor: 'background.paper',
+      borderRadius: '8px',
+      boxShadow: 1,
+      mx: 3,
+      mb: 2
+    }}>
       <StyledBreadcrumbs separator={separator} aria-label="breadcrumb">
         {breadcrumbs.map((item, index) => {
           const isLast = index === breadcrumbs.length - 1;
@@ -73,7 +88,7 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({
             <Typography 
               key={index} 
               color="text.primary" 
-              sx={{ display: 'flex', alignItems: 'center' }}
+              sx={{ display: 'flex', alignItems: 'center', fontWeight: 'medium' }}
             >
               {item.label}
             </Typography>

@@ -17,10 +17,12 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import ForestIcon from '@mui/icons-material/Forest';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import PetsIcon from '@mui/icons-material/Pets';
+import WorkIcon from '@mui/icons-material/Work';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
+import AddIcon from '@mui/icons-material/Add';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -116,6 +118,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             </ListItem>
           </List>
         </Collapse>
+        
+        <ListItem button component={Link} to="/dashboard/projects">
+          <ListItemIcon>
+            <WorkIcon />
+          </ListItemIcon>
+          <ListItemText primary="Projects" />
+        </ListItem>
+        
+        <ListItem button component={Link} to="/dashboard/projects/new">
+          <ListItemIcon>
+            <AddIcon />
+          </ListItemIcon>
+          <ListItemText primary="New Project" />
+        </ListItem>
       </List>
       {isOpen && (
         <Box
@@ -244,6 +260,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
               </ListItem>
             </List>
           </Collapse>
+          
+          <ListItem button component={Link} to="/dashboard/projects">
+            <ListItemIcon>
+              <WorkIcon />
+            </ListItemIcon>
+            <ListItemText primary="Projects" />
+          </ListItem>
+          
+          <ListItem button component={Link} to="/dashboard/projects/new">
+            <ListItemIcon>
+              <AddIcon />
+            </ListItemIcon>
+            <ListItemText primary="New Project" />
+          </ListItem>
         </List>
       </Drawer>
     </>

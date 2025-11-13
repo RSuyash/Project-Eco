@@ -3,213 +3,115 @@ import { Link as RouterLink } from 'react-router-dom';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import AutoGraphIcon from '@mui/icons-material/AutoGraph';
 import InsightsIcon from '@mui/icons-material/Insights';
+import FunctionsIcon from '@mui/icons-material/Functions'; // Example icon for a tool
+import ModelTrainingIcon from '@mui/icons-material/ModelTraining'; // Example icon for a tool
 import Breadcrumb from '../../../components/Breadcrumb';
 
 // Define the data analysis tools
 const dataAnalysisTools = [
   {
-    id: 'statistical-analysis',
-    title: 'Statistical Analysis',
-    description: 'Statistical tools for ecological data',
+    name: 'Statistical Analysis',
     icon: BarChartIcon,
     path: '/dashboard/ecological-analysis/statistical-analysis',
   },
   {
-    id: 'modeling',
-    title: 'Ecological Modeling',
-    description: 'Modeling and simulation tools',
+    name: 'Ecological Modeling',
     icon: AutoGraphIcon,
     path: '/dashboard/ecological-analysis/modeling',
   },
   {
-    id: 'reporting',
-    title: 'Data Reporting',
-    description: 'Visualization and reporting modules',
+    name: 'Data Reporting',
     icon: InsightsIcon,
     path: '/dashboard/ecological-analysis/reporting',
   },
+  {
+    name: 'Diversity Indices',
+    icon: FunctionsIcon,
+    path: '/dashboard/ecological-analysis/data-analysis',
+  },
+  {
+    name: 'Statistical Modeling',
+    icon: ModelTrainingIcon,
+    path: '/dashboard/ecological-analysis/data-analysis',
+  },
 ];
 
-const DataAnalysisPage = () => {
-  return (
-    <Box sx={{ 
-      backgroundColor: 'background.default',
-      minHeight: '100vh',
-      pb: 4
-    }}>
-      <Breadcrumb />
-      <Container maxWidth="lg" sx={{ mt: 2 }}>
-        {/* Header Area */}
-        <Box sx={{ 
-          mb: 6,
-          textAlign: 'center',
-          py: 4
-        }}>
-          <Typography 
-            variant="h3" 
-            component="h1"
-            sx={{ 
-              fontWeight: 700,
-              mb: 2,
+// Re-using the ToolCard component structure
+const ToolCard = ({ name, icon: Icon, path }: { name: string; icon: React.ElementType; path: string }) => (
+  <Grid item xs={12} sm={6} md={4} lg={3}>
+    <RouterLink to={path} style={{ textDecoration: 'none', width: '100%' }}>
+      <Paper
+        sx={{
+          p: 2.5,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: 140,
+          transition: 'all 0.2s ease-in-out',
+          '&:hover': {
+            transform: 'translateY(-4px)',
+            boxShadow: 6,
+            cursor: 'pointer',
+            '& .tool-icon': {
               color: 'primary.main',
-              fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
-            }}
-          >
-            Data Analysis
-          </Typography>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              color: 'text.secondary',
-              maxWidth: '800px',
-              mx: 'auto',
-              fontSize: { xs: '1.1rem', md: '1.2rem' },
-              lineHeight: 1.6
-            }}
-          >
-            Statistical tools, modeling, and analytical modules for ecological data. Explore our comprehensive suite of tools designed for data processing and visualization.
-          </Typography>
-        </Box>
+            },
+          },
+        }}
+      >
+        <Icon className="tool-icon" sx={{ fontSize: 40, mb: 1.5, color: 'text.secondary', transition: 'color 0.2s' }} />
+        <Typography variant="subtitle1" align="center" sx={{ fontWeight: 500, color: 'text.primary' }}>
+          {name}
+        </Typography>
+      </Paper>
+    </RouterLink>
+  </Grid>
+);
 
-        {/* Tool Grid */}
-        <Grid container spacing={{ xs: 3, md: 4 }} justifyContent="center">
-          {dataAnalysisTools.map((tool) => {
-            const IconComponent = tool.icon;
-            return (
-              <Grid 
-                item 
-                xs={12} 
-                sm={6} 
-                md={6} 
-                lg={3} 
-                key={tool.id}
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center'
-                }}
-              >
-                <RouterLink 
-                  to={tool.path} 
-                  style={{ 
-                    textDecoration: 'none',
-                    display: 'block',
-                    width: '100%',
-                    height: '100%'
-                  }}
-                >
-                  <Paper 
-                    sx={{ 
-                      p: { xs: 2.5, md: 3.5 },
-                      height: { xs: '220px', md: '260px' },
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      textAlign: 'center',
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      '&:before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        height: '4px',
-                        backgroundColor: 'primary.main',
-                        transform: 'scaleX(0)',
-                        transformOrigin: 'left',
-                        transition: 'transform 0.3s ease',
-                      },
-                      '&:hover': {
-                        transform: 'translateY(-8px)',
-                        boxShadow: 8,
-                        '&:before': {
-                          transform: 'scaleX(1)',
-                        },
-                      },
-                      '&:hover .icon-container': {
-                        backgroundColor: 'primary.main',
-                        transform: 'scale(1.1)',
-                        '& svg': {
-                          color: 'primary.contrastText',
-                        }
-                      },
-                      '&:hover .title': {
-                        color: 'primary.main',
-                      }
-                    }}
-                  >
-                    <Box 
-                      className="icon-container"
-                      sx={{ 
-                        width: { xs: 64, md: 72 }, 
-                        height: { xs: 64, md: 72 }, 
-                        bgcolor: 'primary.light', 
-                        borderRadius: '50%', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'center',
-                        mb: 2,
-                        transition: 'all 0.3s ease',
-                        mr: 0 // Reset margin since it's centered
-                      }}
-                    >
-                      <IconComponent 
-                        sx={{ 
-                          fontSize: { xs: 32, md: 36 }, 
-                          color: 'primary.main',
-                          transition: 'all 0.3s ease'
-                        }} 
-                      />
-                    </Box>
-                    <Typography 
-                      className="title"
-                      variant="h6" 
-                      sx={{ 
-                        fontWeight: 600,
-                        mb: 1,
-                        transition: 'color 0.3s ease',
-                        fontSize: { xs: '1.1rem', md: '1.2rem' }
-                      }}
-                    >
-                      {tool.title}
-                    </Typography>
-                    <Typography 
-                      variant="body2" 
-                      color="text.secondary" 
-                      sx={{ 
-                        flexGrow: 1,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: { xs: '0.9rem', md: '1rem' },
-                        lineHeight: 1.5
-                      }}
-                    >
-                      {tool.description}
-                    </Typography>
-                    <Typography 
-                      variant="body2" 
-                      color="primary" 
-                      sx={{ 
-                        mt: 1, 
-                        fontWeight: 600,
-                        opacity: 0,
-                        transition: 'opacity 0.3s ease',
-                        '&:hover': {
-                          opacity: 1,
-                        },
-                        fontSize: { xs: '0.9rem', md: '1rem' }
-                      }}
-                    >
-                      Launch →
-                    </Typography>
-                  </Paper>
-                </RouterLink>
-              </Grid>
-            );
-          })}
-        </Grid>
+const DataAnalysisPage = () => {
+  const CategoryIcon = BarChartIcon; // Main icon for Data Analysis
+
+  return (
+    <Box>
+      <Breadcrumb />
+      <Container maxWidth="xl" sx={{ mt: 4, pb: 4 }}>
+        <Box
+          sx={{
+            mb: 6,
+            p: 3,
+            backgroundColor: 'background.paper',
+            borderRadius: '4px',
+            boxShadow: 1,
+          }}
+        >
+          {/* Section Header */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              p: 2,
+              borderLeft: (theme) => `5px solid ${theme.palette.primary.main}`,
+              mb: 3,
+              pl: 2,
+              backgroundColor: (theme) =>
+                theme.palette.mode === 'dark' ? '#333842' : '#f0f0f0',
+              borderRadius: '4px',
+              boxShadow: 1,
+            }}
+          >
+            <CategoryIcon sx={{ fontSize: 28, color: 'primary.main', mr: 2 }} />
+            <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary' }}>
+              Data Analysis Tools
+            </Typography>
+          </Box>
+
+          {/* Grid of Data Analysis Tools */}
+          <Grid container spacing={3} justifyContent="flex-start">
+            {dataAnalysisTools.map((tool) => (
+              <ToolCard key={tool.name} {...tool} />
+            ))}
+          </Grid>
+        </Box>
       </Container>
     </Box>
   );

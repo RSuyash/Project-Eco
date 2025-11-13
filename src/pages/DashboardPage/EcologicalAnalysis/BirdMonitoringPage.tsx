@@ -5,7 +5,7 @@ const BirdMonitoringPage = () => {
   return (
     <Box>
       <Breadcrumb />
-      <Box sx={{ p: 3 }}>
+      <Box sx={{ p: 3, mt: 0 }}>
         <Typography variant="h4" gutterBottom>
           Bird Monitoring
         </Typography>
