@@ -11,20 +11,58 @@ import {
   Tab,
   Alert,
   LinearProgress,
-  Button
+  Button,
+  Stepper,
+  Step,
+  StepLabel,
+  StepContent,
+  TextField,
+  Card,
+  CardContent,
+  CardHeader,
+  IconButton,
+  Collapse,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Avatar,
+  Chip,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Snackbar,
+  Alert as MuiAlert
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  GridColDef,
+  GridRowSelectionModel
+} from '@mui/x-data-grid';
 import { useParams, useNavigate } from 'react-router-dom';
 import Breadcrumb from '../../components/Breadcrumb';
 import { getProjectById } from '../../services/dbService';
 import { readCSVFile, parseCSVData } from '../../services/dataImportService';
-import { 
-  processHerbFloorVegetationData 
+import {
+  processHerbFloorVegetationData
 } from '../../services/fieldDataService';
 import { CanopyPhotoAnalyzer } from '../../components/CanopyPhotoAnalyzer';
 import { CanopyCoverAnalyzer } from '../../components/CanopyCoverAnalyzer';
 import { CanopyAnalysisVisualization } from '../../components/CanopyAnalysisVisualization';
 import { CanopyPhotoAnalysis, CanopyCoverData } from '../../database/models/Plot';
+import {
+  CloudUpload as CloudUploadIcon,
+  CheckCircle as CheckCircleIcon,
+  Error as ErrorIcon,
+  ExpandMore as ExpandMoreIcon,
+  Help as HelpIcon,
+  PictureAsPdf as PictureAsPdfIcon,
+  FileDownload as FileDownloadIcon
+} from '@mui/icons-material';
 
 interface Project {
   id: string;
@@ -84,6 +122,21 @@ const CanopyAnalysisPage = () => {
   const [herbFloorData, setHerbFloorData] = useState<any[]>([]);
   const [canopyCoverData, setCanopyCoverData] = useState<CanopyCoverData[]>([]);
   const [canopyPhotoAnalyses, setCanopyPhotoAnalyses] = useState<CanopyPhotoAnalysis[]>([]);
+
+  // New state for enhanced workflow
+  const [activeStep, setActiveStep] = useState(0);
+  const [csvDataUploaded, setCsvDataUploaded] = useState(false);
+  const [imageDataUploaded, setImageDataUploaded] = useState(false);
+  const [csvPreview, setCsvPreview] = useState<any[]>([]);
+  const [csvColumns, setCsvColumns] = useState<GridColDef[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<any[]>([]);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResults, setAnalysisResults] = useState<any[]>([]);
+  const [helpPanelOpen, setHelpPanelOpen] = useState(true);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('success');
 
   // Load project data from IndexedDB
   useEffect(() => {

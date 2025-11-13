@@ -29,6 +29,7 @@ import ProjectsPage from './ProjectsPage';
 import ProjectViewPage from './ProjectViewPage';
 import NewProjectPage from './NewProjectPage';
 import CanopyAnalysisPage from './CanopyAnalysisPage';
+import PlotManagementPage from './PlotManagementPage';
 import { getAppBarStyles, getMenuButtonStyles, getMainBoxStyles, rootBoxStyle } from './DashboardPage.styles';
 import { useAppTheme } from '../../contexts/ThemeContext';
 
@@ -130,6 +131,7 @@ const DashboardPage = () => {
           <Route path="projects/:id/edit" element={<ProjectsPage />} />
           <Route path="projects/new" element={<NewProjectPage />} />
           <Route path="projects/:id/canopy-analysis" element={<CanopyAnalysisPage />} />
+          <Route path="plots" element={<PlotManagementPage />} />
         </Routes>
       </Box>
     </Box>

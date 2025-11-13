@@ -29,10 +29,11 @@ interface DatabaseSchema {
 }
 
 let db: IDBDatabase | null = null;
+let dbReady: Promise<IDBDatabase>;
 
 // Initialize the database
 export const initDB = (): Promise<IDBDatabase> => {
-  return new Promise((resolve, reject) => {
+  dbReady = new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onerror = () => {
@@ -72,6 +73,7 @@ export const initDB = (): Promise<IDBDatabase> => {
       }
     };
   });
+  return dbReady;
 };
 
 // Initialize default tools, data sources, and a default project
@@ -156,7 +158,8 @@ const initializeDefaultProject = async () => {
 
 
 // Project operations
-export const getAllProjects = (): Promise<Project[]> => {
+export const getAllProjects = async (): Promise<Project[]> => {
+  await dbReady;
   return new Promise((resolve, reject) => {
     if (!db) {
       reject(new Error('Database not initialized'));
@@ -177,7 +180,8 @@ export const getAllProjects = (): Promise<Project[]> => {
   });
 };
 
-export const getProjectById = (id: string): Promise<Project | undefined> => {
+export const getProjectById = async (id: string): Promise<Project | undefined> => {
+  await dbReady;
   return new Promise((resolve, reject) => {
     if (!db) {
       reject(new Error('Database not initialized'));
@@ -198,7 +202,8 @@ export const getProjectById = (id: string): Promise<Project | undefined> => {
   });
 };
 
-export const addProject = (project: Project): Promise<Project> => {
+export const addProject = async (project: Project): Promise<Project> => {
+  await dbReady;
   return new Promise((resolve, reject) => {
     if (!db) {
       reject(new Error('Database not initialized'));
@@ -227,7 +232,8 @@ export const addProject = (project: Project): Promise<Project> => {
   });
 };
 
-export const updateProject = (project: Project): Promise<Project> => {
+export const updateProject = async (project: Project): Promise<Project> => {
+  await dbReady;
   return new Promise((resolve, reject) => {
     if (!db) {
       reject(new Error('Database not initialized'));
@@ -248,7 +254,8 @@ export const updateProject = (project: Project): Promise<Project> => {
   });
 };
 
-export const deleteProject = (id: string): Promise<void> => {
+export const deleteProject = async (id: string): Promise<void> => {
+  await dbReady;
   return new Promise((resolve, reject) => {
     if (!db) {
       reject(new Error('Database not initialized'));
@@ -270,7 +277,8 @@ export const deleteProject = (id: string): Promise<void> => {
 };
 
 // Data source operations
-export const getAllDataSources = (): Promise<{ id: string; name: string; type: string }[]> => {
+export const getAllDataSources = async (): Promise<{ id: string; name: string; type: string }[]> => {
+  await dbReady;
   return new Promise((resolve, reject) => {
     if (!db) {
       reject(new Error('Database not initialized'));
@@ -292,7 +300,8 @@ export const getAllDataSources = (): Promise<{ id: string; name: string; type: s
 };
 
 // Tool operations
-export const getAllTools = (): Promise<{ id: string; name: string; category: string }[]> => {
+export const getAllTools = async (): Promise<{ id: string; name: string; category: string }[]> => {
+  await dbReady;
   return new Promise((resolve, reject) => {
     if (!db) {
       reject(new Error('Database not initialized'));

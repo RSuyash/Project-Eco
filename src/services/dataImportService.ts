@@ -29,11 +29,13 @@ export const importFieldData = async (projectId: string, filePath: string): Prom
     const csvData = parseCSVData(csvText);
     const processedData = processFieldData(csvData);
 
+    const alreadyImported = project.dataSources.includes('Field Data');
+
     // Update the project with the new data
     const updatedProject = {
       ...project,
       dataSources: [...new Set([...project.dataSources, 'Field Data'])], // Avoid duplicates
-      totalDataPoints: (project.totalDataPoints || 0) + processedData.totalDataPoints,
+      totalDataPoints: alreadyImported ? project.totalDataPoints : (project.totalDataPoints || 0) + processedData.totalDataPoints,
       lastSynced: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -49,17 +51,21 @@ export const importFieldData = async (projectId: string, filePath: string): Prom
 // Function to import canopy images
 export const importCanopyImages = async (projectId: string, imageFolderPath: string): Promise<boolean> => {
   try {
-    // In a real implementation, we would process the images from the folder
-    // For now, we'll simulate the import by updating the project's data sources
     const project = await getProjectById(projectId);
     if (!project) {
       throw new Error(`Project with id ${projectId} not found`);
     }
 
+    const alreadyImported = project.dataSources.includes('Canopy Images');
+
+    // In a real app, you'd count the images. For now, let's add a fixed number.
+    const imageCount = 50; 
+
     // Update the project to include canopy images
     const updatedProject = {
       ...project,
       dataSources: [...new Set([...project.dataSources, 'Canopy Images'])], // Avoid duplicates
+      totalDataPoints: alreadyImported ? project.totalDataPoints : (project.totalDataPoints || 0) + imageCount,
       updatedAt: new Date().toISOString()
     };
 

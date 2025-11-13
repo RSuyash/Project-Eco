@@ -75,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           overflow: 'hidden', // Prevent scrollbars
         }}
       >
-        <ListItem button component={Link} to="/dashboard/ecological-analysis">
+        <ListItem button={true} component={Link} to="/dashboard/ecological-analysis">
           <ListItemIcon>
             <BarChartIcon />
           </ListItemIcon>
@@ -92,25 +92,25 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         </ListItem>
         <Collapse in={ecologicalOpen} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            <ListItem button component={Link} to="/dashboard/ecological-analysis/flora" sx={{ pl: 4 }}>
+            <ListItem button={true} component={Link} to="/dashboard/ecological-analysis/flora" sx={{ pl: 4 }}>
               <ListItemIcon>
                 <ForestIcon />
               </ListItemIcon>
               <ListItemText primary="Flora & Vegetation" />
             </ListItem>
-            <ListItem button component={Link} to="/dashboard/ecological-analysis/fauna" sx={{ pl: 4 }}>
+            <ListItem button={true} component={Link} to="/dashboard/ecological-analysis/fauna" sx={{ pl: 4 }}>
               <ListItemIcon>
                 <PetsIcon />
               </ListItemIcon>
               <ListItemText primary="Fauna & Wildlife" />
             </ListItem>
-            <ListItem button component={Link} to="/dashboard/ecological-analysis/landscape" sx={{ pl: 4 }}>
+            <ListItem button={true} component={Link} to="/dashboard/ecological-analysis/landscape" sx={{ pl: 4 }}>
               <ListItemIcon>
                 <AutoGraphIcon />
               </ListItemIcon>
               <ListItemText primary="Landscape Ecology" />
             </ListItem>
-            <ListItem button component={Link} to="/dashboard/ecological-analysis/data-analysis" sx={{ pl: 4 }}>
+            <ListItem button={true} component={Link} to="/dashboard/ecological-analysis/data-analysis" sx={{ pl: 4 }}>
               <ListItemIcon>
                 <AutoGraphIcon />
               </ListItemIcon>
@@ -119,18 +119,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           </List>
         </Collapse>
         
-        <ListItem button component={Link} to="/dashboard/projects">
-          <ListItemIcon>
+                  <ListItem button={true} component={Link} to="/dashboard/projects">          <ListItemIcon>
             <WorkIcon />
           </ListItemIcon>
           <ListItemText primary="Projects" />
         </ListItem>
         
-        <ListItem button component={Link} to="/dashboard/projects/new">
+        <ListItem button={true} component={Link} to="/dashboard/plots">
           <ListItemIcon>
-            <AddIcon />
+            <BarChartIcon />
           </ListItemIcon>
-          <ListItemText primary="New Project" />
+          <ListItemText primary="Plot Management" />
         </ListItem>
       </List>
       {isOpen && (
@@ -217,7 +216,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
       >
         <Toolbar />
         <List>
-          <ListItem button component={Link} to="/dashboard/ecological-analysis">
+          <ListItem button={true} component={Link} to="/dashboard/ecological-analysis">
             <ListItemIcon>
               <BarChartIcon />
             </ListItemIcon>
@@ -234,25 +233,25 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
           </ListItem>
           <Collapse in={ecologicalOpen} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button component={Link} to="/dashboard/ecological-analysis/flora" sx={{ pl: 4 }}>
+              <ListItem button={true} component={Link} to="/dashboard/ecological-analysis/flora" sx={{ pl: 4 }}>
                 <ListItemIcon>
                   <ForestIcon />
                 </ListItemIcon>
                 <ListItemText primary="Flora & Vegetation" />
               </ListItem>
-              <ListItem button component={Link} to="/dashboard/ecological-analysis/fauna" sx={{ pl: 4 }}>
+              <ListItem button={true} component={Link} to="/dashboard/ecological-analysis/fauna" sx={{ pl: 4 }}>
                 <ListItemIcon>
                   <PetsIcon />
                 </ListItemIcon>
                 <ListItemText primary="Fauna & Wildlife" />
               </ListItem>
-              <ListItem button component={Link} to="/dashboard/ecological-analysis/landscape" sx={{ pl: 4 }}>
+              <ListItem button={true} component={Link} to="/dashboard/ecological-analysis/landscape" sx={{ pl: 4 }}>
                 <ListItemIcon>
                   <AutoGraphIcon />
                 </ListItemIcon>
                 <ListItemText primary="Landscape Ecology" />
               </ListItem>
-              <ListItem button component={Link} to="/dashboard/ecological-analysis/data-analysis" sx={{ pl: 4 }}>
+              <ListItem button={true} component={Link} to="/dashboard/ecological-analysis/data-analysis" sx={{ pl: 4 }}>
                 <ListItemIcon>
                   <AutoGraphIcon />
                 </ListItemIcon>
@@ -261,18 +260,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
             </List>
           </Collapse>
           
-          <ListItem button component={Link} to="/dashboard/projects">
+        <ListItem button={true} component={Link} to="/dashboard/projects">
             <ListItemIcon>
               <WorkIcon />
             </ListItemIcon>
             <ListItemText primary="Projects" />
-          </ListItem>
-          
-          <ListItem button component={Link} to="/dashboard/projects/new">
-            <ListItemIcon>
-              <AddIcon />
-            </ListItemIcon>
-            <ListItemText primary="New Project" />
           </ListItem>
         </List>
       </Drawer>
