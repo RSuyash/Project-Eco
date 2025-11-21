@@ -81,12 +81,17 @@ const WoodyCirclePack: React.FC<{ data: PieSliceData[]; size: number }> = ({ dat
   const minRadius = 4; // Minimum circle radius
   const maxRadius = size * 0.15; // Reduced maximum radius to ensure better fit
 
+  // Normalize the number of items to prevent overcrowding - set max to 12 items per quadrant
+  const normalizedData = data.length > 12 ?
+    data.sort((a, b) => b.value - a.value).slice(0, 12) :
+    data;
+
   // Create circles for each individual tree with proper boundary constraints
   const circles = [];
   let usedPositions = [];
 
-  for (let i = 0; i < data.length; i++) {
-    const item = data[i];
+  for (let i = 0; i < normalizedData.length; i++) {
+    const item = normalizedData[i];
     // Each item represents one individual tree from the woody data
     const radius = Math.max(minRadius, (item.value / maxGBH) * maxRadius);
 
@@ -95,7 +100,10 @@ const WoodyCirclePack: React.FC<{ data: PieSliceData[]; size: number }> = ({ dat
     let x, y;
 
     // Try to find a non-overlapping position within boundaries
-    while (!positionFound && attempts < 100) {
+    // Limit attempts based on the number of circles to avoid infinite loops
+    const maxAttempts = 100 + (normalizedData.length * 2);
+
+    while (!positionFound && attempts < maxAttempts) {
       // Generate position ensuring the circle fits within bounds (accounting for radius)
       x = Math.random() * (size - radius * 2) + radius;
       y = Math.random() * (size - radius * 2) + radius;
@@ -104,7 +112,9 @@ const WoodyCirclePack: React.FC<{ data: PieSliceData[]; size: number }> = ({ dat
       let collision = false;
       for (const pos of usedPositions) {
         const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
-        if (distance < (radius + pos.radius + 3)) { // 3px padding
+        // Reduce the padding to allow more efficient packing
+        const minDistance = (radius + pos.radius) * 1.2; // 20% padding
+        if (distance < minDistance) {
           collision = true;
           break;
         }
@@ -118,18 +128,28 @@ const WoodyCirclePack: React.FC<{ data: PieSliceData[]; size: number }> = ({ dat
       attempts++;
     }
 
-    // Even if we couldn't find a non-overlapping position, place it within boundaries
+    // If we couldn't find a non-overlapping position, place it anyway but use a smaller radius
     if (!positionFound) {
-      // Generate a position within the boundary anyway, prioritizing containment over overlap
-      x = Math.random() * (size - radius * 2) + radius;
-      y = Math.random() * (size - radius * 2) + radius;
-      usedPositions.push({ x, y, radius, species: item.label });
+      // Reduce the radius to fit in the space
+      const adjustedRadius = Math.max(minRadius, radius * 0.7);
+      x = Math.random() * (size - adjustedRadius * 2) + adjustedRadius;
+      y = Math.random() * (size - adjustedRadius * 2) + adjustedRadius;
+      usedPositions.push({ x, y, radius: adjustedRadius, species: item.label });
+    } else {
+      // Otherwise use the regular radius
+      x = x; // Keep the found position
+      y = y; // Keep the found position
     }
+
+    // If it's a normalized dataset, add a note for the user
+    const title = normalizedData !== data && i === normalizedData.length - 1 && data.length > 12
+      ? `${item.label}: GBH ${item.value.toFixed(1)}cm\n(Only showing 12 largest trees due to density)`
+      : `${item.label}: GBH ${item.value.toFixed(1)}cm`;
 
     circles.push(
       <Box
         key={`${i}`}
-        title={`${item.label}: GBH ${item.value.toFixed(1)}cm`}
+        title={title}
         sx={{
           position: 'absolute',
           left: `${x - radius}px`, // Center the circle at the coordinate
@@ -332,8 +352,8 @@ const PlotVisualizer: React.FC<PlotVisualizerProps> = ({
   const quadrantSize = plotSize / 2;
 
   return (
-    <Card>
-      <CardContent>
+    <Card sx={{ height: '100%', width: '100%' }}>
+      <CardContent sx={{ height: '100%', '&:last-child': { paddingBottom: '16px' } }}>
         {/* Header with title and dropdown side by side */}
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6">
@@ -349,15 +369,17 @@ const PlotVisualizer: React.FC<PlotVisualizerProps> = ({
           sx={{
             position: 'relative',
             width: '100%',
-            maxWidth: { lg: '600px' }, // Max width on large screens, but scale down if needed
-            height: 0,
-            paddingBottom: '100%', // Maintain 1:1 aspect ratio always
+            maxWidth: '100%', // Full width
+            height: '100%',
+            minHeight: { xs: '400px', sm: '450px', md: '500px', lg: '600px' }, // Fixed minimum heights based on screen size
+            maxHeight: { lg: '700px' }, // Maximum height to prevent getting too large
+            aspectRatio: '1', // Maintain 1:1 aspect ratio using aspectRatio
             backgroundColor: 'rgba(144, 238, 144, 0.2)', // lighter green with less transparency
             border: '2.5px solid', // Thinner border
             borderColor: 'grey.700', // Slightly lighter border
             borderRadius: '4px', // Less rounded corners
             overflow: 'hidden',
-            mx: 'auto', // Center the plot
+            mx: 0, // Remove centering (was 'auto')
           }}
         >
           {/* Grid lines and axis labels */}

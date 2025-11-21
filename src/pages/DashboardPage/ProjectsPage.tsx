@@ -241,7 +241,7 @@ const ProjectsPage = () => {
 
         {/* Stats Summary */}
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid xs={12} sm={6} md={3}>
+          <Grid sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
             <Paper
               sx={{
                 p: 3,
@@ -260,7 +260,7 @@ const ProjectsPage = () => {
               </Typography>
             </Paper>
           </Grid>
-          <Grid xs={12} sm={6} md={3}>
+          <Grid sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
             <Paper
               sx={{
                 p: 3,
@@ -279,7 +279,7 @@ const ProjectsPage = () => {
               </Typography>
             </Paper>
           </Grid>
-          <Grid xs={12} sm={6} md={3}>
+          <Grid sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
             <Paper
               sx={{
                 p: 3,
@@ -298,7 +298,7 @@ const ProjectsPage = () => {
               </Typography>
             </Paper>
           </Grid>
-          <Grid xs={12} sm={6} md={3}>
+          <Grid sx={{ width: { xs: '100%', sm: '50%', md: '25%' } }}>
             <Paper
               sx={{
                 p: 3,
@@ -469,7 +469,7 @@ const ProjectsPage = () => {
                   }
                 })
                 .map((project) => (
-                <Grid xs={12} md={6} lg={4} key={project.id}>
+                <Grid sx={{ width: { xs: '100%', md: '50%', lg: '33.33%' } }} key={project.id}>
                   <Card
                     sx={{
                       height: '100%',
@@ -559,15 +559,15 @@ const ProjectsPage = () => {
 
                       {/* Data-forward metrics */}
                       <Grid container spacing={1} sx={{ mb: 2 }}>
-                        <Grid xs={6} display="flex" alignItems="center">
+                        <Grid sx={{ width: '50%' }} display="flex" alignItems="center">
                           <GridOnIcon fontSize="small" sx={{ color: 'primary.main', mr: 0.5 }} />
                           <Typography variant="body2">{project.totalDataPoints || 0} Plots</Typography>
                         </Grid>
-                        <Grid xs={6} display="flex" alignItems="center">
+                        <Grid sx={{ width: '50%' }} display="flex" alignItems="center">
                           <PestControlIcon fontSize="small" sx={{ color: 'success.main', mr: 0.5 }} />
                           <Typography variant="body2">{project.tools.length} Tools</Typography>
                         </Grid>
-                        <Grid xs={6} display="flex" alignItems="center">
+                        <Grid sx={{ width: '50%' }} display="flex" alignItems="center">
                           <GroupIcon fontSize="small" sx={{ color: 'info.main', mr: 0.5 }} />
                           <AvatarGroup max={3} sx={{ ml: 0.5 }}>
                             <Avatar sx={{ width: 20, height: 20, fontSize: '0.7rem' }}>JD</Avatar>

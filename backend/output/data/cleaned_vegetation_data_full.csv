@@ -1,0 +1,210 @@
+Plot,Quadrant,ID,Type,Number,Species,Girth_cm_Stem1,Girth_cm_Stem2,Girth_cm_Stem3,Height_m,Location_Name,Condition,GBH_Stem3_cm,GBH_Stem4_cm,GBH_Stem5_cm,GBH_Stem6_cm,Remarks,Total_GBH_cm,Subplot_ID,Notes
+Plot-P01,Q1,T1,Tree,1,Pongamia pinnata (Karanj),15.0,0.0,,4.1,MIT WPU Medicine Garden,Live,0.0,0.0,0.0,0.0,Live,15.2,,
+Plot-P01,Q2,T2,Tree,1,Ficus racemosa,99.0,0.0,,13.9,MIT WPU Medicine Garden,Live,0.0,0.0,0.0,0.0,Live,99.1,,
+Plot-P01,Q2,T3,Tree,1,Pongamia pinnata (Karanj),40.8,0.0,,8.3,MIT WPU Medicine Garden,Live,0.0,0.0,0.0,0.0,Live,41.0,,
+Plot-P01,Q2,T4,Tree,1,Ficus racemosa,103.5,0.0,,11.5,MIT WPU Medicine Garden,Live,0.0,0.0,0.0,0.0,Live,103.6,,
+Plot-P01,Q2,T5,Tree,1,Pongamia pinnata (Karanj),48.5,28.0,,7.0,MIT WPU Medicine Garden,Live,35.0,0.0,0.0,0.0,Live,68.0,,
+Plot-P01,Q3,T6,Tree,1,Moringa oleifera (Indian drumstick),90.0,0.0,,9.5,MIT WPU Medicine Garden,Live,0.0,0.0,0.0,0.0,Live,90.0,,
+Plot-P01,Q4,T7,Tree,1,Pongamia pinnata (Karanj),85.5,39.0,,7.5,MIT WPU Medicine Garden,Live,47.0,0.0,0.0,0.0,Live,105.2,,
+Plot-P02,Q1,T8,Tree,1,Azadirachta indica (Neem),84.0,0.0,,11.0,Eco-Park,Live,0.0,0.0,0.0,0.0,Live,84.3,,
+Plot-P02,Q1,T9,Tree,1,Caesalpinia pulcherrima,48.5,0.0,,4.0,Eco-Park,Live,0.0,0.0,0.0,0.0,Live,48.6,,
+Plot-P02,Q2,T10,Tree,1,Hibiscus rosa-sinensis,40.0,0.0,,1.8,Eco-Park,Live,0.0,0.0,0.0,0.0,Live,40.2,,
+Plot-P02,Q2,T11,Tree,1,Hibiscus rosa-sinensis,30.5,0.0,,1.5,Eco-Park,Live,0.0,0.0,0.0,0.0,Live,30.6,,
+Plot-P02,Q2,T12,Tree,1,Hibiscus rosa-sinensis,59.5,23.5,,3.0,Eco-Park,Dead,16.5,20.0,0.0,0.0,Live,69.9,,
+Plot-P02,Q2,T13,Tree,1,Hibiscus rosa-sinensis,28.5,0.0,,2.5,Eco-Park,Live,0.0,0.0,0.0,0.0,Live,28.7,,
+Plot-P02,Q3,T14,Tree,1,Hibiscus rosa-sinensis,18.5,0.0,,2.0,Eco-Park,Live,0.0,0.0,0.0,0.0,Live,18.8,,
+Plot-P02,Q3,T15,Tree,1,Hibiscus rosa-sinensis,21.0,0.0,,1.0,Eco-Park,Live,0.0,0.0,0.0,0.0,Live,21.3,,
+Plot-P02,Q3,T16,Tree,1,Hibiscus rosa-sinensis,18.5,0.0,,2.0,Eco-Park,Live,0.0,0.0,0.0,0.0,Live,18.8,,
+Plot-P02,Q3,T17,Tree,1,Azadirachta indica (Neem),60.0,0.0,,12.5,Eco-Park,Live,0.0,0.0,0.0,0.0,Live,60.3,,
+Plot-P02,Q3,T18,Tree,1,Hibiscus rosa-sinensis,20.5,0.0,,2.0,Eco-Park,Live,0.0,0.0,0.0,0.0,Live,20.8,,
+Plot-P02,Q3,T19,Tree,1,Hibiscus rosa-sinensis,52.5,17.5,,2.5,Eco-Park,Live,22.0,14.5,0.0,0.0,Live,59.3,,
+Plot-P02,Q3,T20,Tree,1,Hibiscus rosa-sinensis,19.0,0.0,,1.5,Eco-Park,Live,0.0,0.0,0.0,0.0,Live,19.2,,
+Plot-P02,Q3,T21,Tree,1,Hibiscus rosa-sinensis,51.5,21.5,,2.5,Eco-Park,Live,14.5,16.5,0.0,0.0,Live,57.1,,
+Plot-P02,Q3,T22,Tree,1,Hibiscus rosa-sinensis,51.5,22.0,,2.5,Eco-Park,Live,16.5,15.0,0.0,0.0,Live,62.6,,
+Plot-P02,Q4,T23,Tree,1,Caesalpinia pulcherrima,19.0,18.5,,4.0,Eco-Park,Live,24.0,0.0,0.0,0.0,Live,34.6,,
+Plot-P02,Q4,T24,Tree,1,Caesalpinia pulcherrima,41.0,0.0,,4.5,Eco-Park,Live,0.0,0.0,0.0,0.0,Live,41.2,,
+Plot-P02,Q4,T25,Tree,1,Caesalpinia pulcherrima,26.0,10.0,,2.5,Eco-Park,Live,15.5,0.0,0.0,0.0,Live,31.9,,
+Plot-P03,Q1,T26,Tree,1,Gliricidia sepium,56.5,33.0,,8.5,ARAI Hills I,Live,42.0,0.0,0.0,0.0,Live,76.7,,
+Plot-P03,Q2,T27,Tree,1,Gliricidia sepium,45.5,0.0,,7.0,ARAI Hills I,Live,0.0,0.0,0.0,0.0,Live,45.6,,
+Plot-P03,Q2,T28,Tree,1,Boswellia serrata,79.0,0.0,,10.0,ARAI Hills I,Live,0.0,0.0,0.0,0.0,"Leaf fall initiating, canopy thinning",79.2,,
+Plot-P03,Q3,T29,Tree,1,Terminalia elliptica (Ain),135.0,46.0,,16.5,ARAI Hills I,Live,0.0,0.0,0.0,0.0,Live,142.3,,
+Plot-P03,Q4,T30,Tree,1,Anogeissus latifolia,50.0,53.0,,8.0,ARAI Hills I,Live,68.5,60.0,0.0,0.0,Live,119.0,,
+Plot-P04,Q1,T31,Tree,1,Gliricidia sepium,171.0,52.0,,12.0,ARAI Hills II,Live,71.5,49.0,0.0,0.0,Live,204.5,,
+Plot-P04,Q2,T32,Tree,1,Gliricidia sepium,41.0,0.0,,6.5,ARAI Hills II,Live,0.0,0.0,0.0,0.0,Live,41.0,,
+Plot-P04,Q3,T33,Tree,1,Boswellia serrata,89.0,0.0,,13.5,ARAI Hills II,Live,0.0,0.0,0.0,0.0,"Leaf fall initiating, canopy thinning",89.3,,
+Plot-P04,Q4,T34,Tree,1,Ficus racemosa,219.0,65.0,,19.0,ARAI Hills II,Live,82.0,75.5,0.0,0.0,Live,258.5,,
+Plot-P05,Q1,T35,Tree,1,Syzygium cumini (Jambul),125.5,0.0,,15.5,Panshet Backwaters,Live,0.0,0.0,0.0,0.0,Live,125.8,,
+Plot-P05,Q1,T36,Tree,1,Terminalia elliptica (Ain),143.0,0.0,,17.5,Panshet Backwaters,Live,0.0,0.0,0.0,0.0,Live,143.1,,
+Plot-P05,Q1,T37,Tree,1,Ficus racemosa,99.0,0.0,,12.0,Panshet Backwaters,Live,0.0,0.0,0.0,0.0,Live,99.0,,
+Plot-P05,Q2,T38,Tree,1,Garcinia indica (Kokum),68.5,0.0,,11.0,Panshet Backwaters,Live,0.0,0.0,0.0,0.0,Live,68.8,,
+Plot-P05,Q2,T39,Tree,1,Phyllanthus emblica (Amla),53.0,0.0,,10.0,Panshet Backwaters,Live,0.0,0.0,0.0,0.0,Live,53.1,,
+Plot-P05,Q2,T40,Tree,1,Mangifera indica,166.0,0.0,,18.5,Panshet Backwaters,Live,0.0,0.0,0.0,0.0,Live,166.3,,
+Plot-P05,Q3,T41,Tree,1,Ficus benghalensis,187.5,0.0,,20.0,Panshet Backwaters,Live,0.0,0.0,0.0,0.0,Live,187.7,,
+Plot-P05,Q3,T42,Tree,1,Alstonia scholaris,76.0,0.0,,14.5,Panshet Backwaters,Live,0.0,0.0,0.0,0.0,Live,76.2,,
+Plot-P05,Q4,T43,Tree,1,Mallotus philippensis,43.0,0.0,,10.0,Panshet Backwaters,Live,0.0,0.0,0.0,0.0,Live,43.3,,
+Plot-P05,Q4,T44,Tree,1,Syzygium caryophyllatum,89.0,0.0,,13.0,Panshet Backwaters,Live,0.0,0.0,0.0,0.0,Live,89.1,,
+Plot-P06,Q1,T45,Tree,1,Pongamia pinnata (Karanj),65.5,0.0,,11.0,Chande Village,Live,0.0,0.0,0.0,0.0,Live,65.8,,
+Plot-P06,Q1,T46,Tree,1,Tectona grandis (teak),88.5,0.0,,11.5,Chande Village,Live,0.0,0.0,0.0,0.0,Live,88.8,,
+Plot-P06,Q1,T47,Tree,1,Gliricidia sepium,38.0,0.0,,7.5,Chande Village,Live,0.0,0.0,0.0,0.0,Live,38.1,,
+Plot-P06,Q1,T48,Tree,1,Tectona grandis (teak),95.0,0.0,,14.0,Chande Village,Live,0.0,0.0,0.0,0.0,Live,95.1,,
+Plot-P06,Q2,T49,Tree,1,Acacia nilotica,31.0,0.0,,8.0,Chande Village,Live,0.0,0.0,0.0,0.0,Live,31.2,,
+Plot-P06,Q3,T50,Tree,1,Pongamia pinnata (Karanj),77.5,0.0,,13.5,Chande Village,Live,0.0,0.0,0.0,0.0,Live,77.5,,
+Plot-P06,Q3,T51,Tree,1,Gliricidia sepium,37.0,0.0,,10.5,Chande Village,Live,0.0,0.0,0.0,0.0,Live,37.1,,
+Plot-P06,Q4,T52,Tree,1,Tectona grandis (teak),96.0,0.0,,14.0,Chande Village,Live,0.0,0.0,0.0,0.0,Live,96.3,,
+Plot-P06,Q4,T53,Tree,1,Ficus religiosa,126.0,0.0,,16.5,Chande Village,Live,0.0,0.0,0.0,0.0,Live,126.2,,
+Plot-P07,Q1,T54,Tree,1,Gliricidia sepium,43.0,0.0,,7.0,Warje Hills I,Live,0.0,0.0,0.0,0.0,Live,43.2,,
+Plot-P07,Q2,T55,Tree,1,Pongamia pinnata (Karanj),95.5,0.0,,11.5,Warje Hills I,Live,0.0,0.0,0.0,0.0,Live,95.8,,
+Plot-P07,Q3,T56,Tree,1,Anogeissus latifolia,111.0,0.0,,14.0,Warje Hills I,Live,0.0,0.0,0.0,0.0,Live,111.3,,
+Plot-P07,Q4,T57,Tree,1,Dalbergia latifolia,80.5,0.0,,10.0,Warje Hills I,Live,0.0,0.0,0.0,0.0,Live,81.0,,
+Plot-P08,Q1,T58,Tree,1,Boswellia serrata,131.0,0.0,,16.0,Warje Hills II,Live,0.0,0.0,0.0,0.0,"Leaf fall initiating, canopy thinning",131.1,,
+Plot-P08,Q2,T59,Tree,1,Tectona grandis,126.0,0.0,,15.5,Warje Hills II,Live,0.0,0.0,0.0,0.0,Live,126.2,,
+Plot-P08,Q2,T60,Tree,1,Gliricidia sepium,58.5,0.0,,9.0,Warje Hills II,Live,0.0,0.0,0.0,0.0,Live,58.5,,
+Plot-P08,Q3,T61,Tree,1,Lagerstroemia microcarpa,105.5,0.0,,13.0,Warje Hills II,Live,0.0,0.0,0.0,0.0,Live,105.6,,
+Plot-P08,Q4,T62,Tree,1,Albizia lebbeck,90.5,0.0,,11.0,Warje Hills II,Live,0.0,0.0,0.0,0.0,Live,90.7,,
+Plot-P08,Q4,T63,Tree,1,Ficus racemosa,146.0,0.0,,17.0,Warje Hills II,Live,0.0,0.0,0.0,0.0,Live,146.2,,
+Plot-P09,Q1,T64,Tree,1,Mangifera indica,151.0,0.0,,15.0,Warje Urban Garden,Live,0.0,0.0,0.0,0.0,Live,151.3,,
+Plot-P09,Q3,T65,Tree,1,Ficus religiosa,199.0,0.0,,18.0,Warje Urban Garden,Live,0.0,0.0,0.0,0.0,Live,199.2,,
+Plot-P01,Q1,Herb_SP1,Herb,28,Mixed Herbs,,,,0.2,MIT WPU Medicine Garden,,,,,,,,SP1,"Mixed herb layer, variable"
+Plot-P01,Q1,Grass_SP1,Grass,28,Mixed Grasses,,,,0.06,MIT WPU Medicine Garden,,,,,,,,SP1,Live
+Plot-P01,Q1,Litter_SP1,Litter,21,Decomposing Matter,,,,0.03,MIT WPU Medicine Garden,,,,,,,,SP1,Seasonal leaf litter
+Plot-P01,Q1,Bare Soil_SP1,Bare Soil,35,Bare Ground,,,,0.0,MIT WPU Medicine Garden,,,,,,,,SP1,Exposed surface
+Plot-P01,Q2,Herb_SP2,Herb,25,Mixed Herbs,,,,0.06,MIT WPU Medicine Garden,,,,,,,,SP2,"Mixed herb layer, variable"
+Plot-P01,Q2,Grass_SP2,Grass,18,Mixed Grasses,,,,0.06,MIT WPU Medicine Garden,,,,,,,,SP2,Live
+Plot-P01,Q2,Litter_SP2,Litter,18,Decomposing Matter,,,,0.0,MIT WPU Medicine Garden,,,,,,,,SP2,Seasonal leaf litter
+Plot-P01,Q2,Bare Soil_SP2,Bare Soil,45,Bare Ground,,,,0.0,MIT WPU Medicine Garden,,,,,,,,SP2,Exposed surface
+Plot-P01,Q3,Herb_SP3,Herb,15,Mixed Herbs,,,,0.19,MIT WPU Medicine Garden,,,,,,,,SP3,"Mixed herb layer, variable"
+Plot-P01,Q3,Grass_SP3,Grass,21,Mixed Grasses,,,,0.11,MIT WPU Medicine Garden,,,,,,,,SP3,Live
+Plot-P01,Q3,Litter_SP3,Litter,14,Decomposing Matter,,,,0.01,MIT WPU Medicine Garden,,,,,,,,SP3,Seasonal leaf litter
+Plot-P01,Q3,Bare Soil_SP3,Bare Soil,55,Bare Ground,,,,0.0,MIT WPU Medicine Garden,,,,,,,,SP3,Exposed surface
+Plot-P01,Q4,Herb_SP4,Herb,41,Mixed Herbs,,,,0.15,MIT WPU Medicine Garden,,,,,,,,SP4,"Mixed herb layer, variable"
+Plot-P01,Q4,Grass_SP4,Grass,15,Mixed Grasses,,,,0.12,MIT WPU Medicine Garden,,,,,,,,SP4,Live
+Plot-P01,Q4,Litter_SP4,Litter,46,Decomposing Matter,,,,0.04,MIT WPU Medicine Garden,,,,,,,,SP4,Seasonal leaf litter
+Plot-P01,Q4,Bare Soil_SP4,Bare Soil,-4,Bare Ground,,,,0.0,MIT WPU Medicine Garden,,,,,,,,SP4,Exposed surface
+Plot-P02,Q1,Herb_SP1,Herb,13,Mixed Herbs,,,,0.14,Eco-Park,,,,,,,,SP1,"Mixed herb layer, variable"
+Plot-P02,Q1,Grass_SP1,Grass,32,Mixed Grasses,,,,0.24,Eco-Park,,,,,,,,SP1,Live
+Plot-P02,Q1,Litter_SP1,Litter,17,Decomposing Matter,,,,0.0,Eco-Park,,,,,,,,SP1,Seasonal leaf litter
+Plot-P02,Q1,Bare Soil_SP1,Bare Soil,46,Bare Ground,,,,0.0,Eco-Park,,,,,,,,SP1,Exposed surface
+Plot-P02,Q2,Herb_SP2,Herb,19,Mixed Herbs,,,,0.2,Eco-Park,,,,,,,,SP2,"Mixed herb layer, variable"
+Plot-P02,Q2,Grass_SP2,Grass,26,Mixed Grasses,,,,0.14,Eco-Park,,,,,,,,SP2,Live
+Plot-P02,Q2,Litter_SP2,Litter,40,Decomposing Matter,,,,0.05,Eco-Park,,,,,,,,SP2,Seasonal leaf litter
+Plot-P02,Q2,Bare Soil_SP2,Bare Soil,14,Bare Ground,,,,0.0,Eco-Park,,,,,,,,SP2,Exposed surface
+Plot-P02,Q3,Herb_SP3,Herb,22,Mixed Herbs,,,,0.07,Eco-Park,,,,,,,,SP3,"Mixed herb layer, variable"
+Plot-P02,Q3,Grass_SP3,Grass,14,Mixed Grasses,,,,0.23,Eco-Park,,,,,,,,SP3,Live
+Plot-P02,Q3,Litter_SP3,Litter,44,Decomposing Matter,,,,0.01,Eco-Park,,,,,,,,SP3,Seasonal leaf litter
+Plot-P02,Q3,Bare Soil_SP3,Bare Soil,35,Bare Ground,,,,0.0,Eco-Park,,,,,,,,SP3,Exposed surface
+Plot-P02,Q4,Herb_SP4,Herb,27,Mixed Herbs,,,,0.11,Eco-Park,,,,,,,,SP4,"Mixed herb layer, variable"
+Plot-P02,Q4,Grass_SP4,Grass,22,Mixed Grasses,,,,0.22,Eco-Park,,,,,,,,SP4,Live
+Plot-P02,Q4,Litter_SP4,Litter,40,Decomposing Matter,,,,0.03,Eco-Park,,,,,,,,SP4,Seasonal leaf litter
+Plot-P02,Q4,Bare Soil_SP4,Bare Soil,21,Bare Ground,,,,0.0,Eco-Park,,,,,,,,SP4,Exposed surface
+Plot-P03,Q1,Herb_SP1,Herb,24,Mixed Herbs,,,,0.06,ARAI Hills I,,,,,,,,SP1,"Mixed herb layer, variable"
+Plot-P03,Q1,Grass_SP1,Grass,14,Mixed Grasses,,,,0.23,ARAI Hills I,,,,,,,,SP1,Seeding/Drying
+Plot-P03,Q1,Litter_SP1,Litter,50,Decomposing Matter,,,,0.03,ARAI Hills I,,,,,,,,SP1,Seasonal leaf litter
+Plot-P03,Q1,Bare Soil_SP1,Bare Soil,10,Bare Ground,,,,0.0,ARAI Hills I,,,,,,,,SP1,Exposed surface
+Plot-P03,Q2,Herb_SP2,Herb,12,Mixed Herbs,,,,0.1,ARAI Hills I,,,,,,,,SP2,"Mixed herb layer, variable"
+Plot-P03,Q2,Grass_SP2,Grass,19,Mixed Grasses,,,,0.25,ARAI Hills I,,,,,,,,SP2,Seeding/Drying
+Plot-P03,Q2,Litter_SP2,Litter,23,Decomposing Matter,,,,0.05,ARAI Hills I,,,,,,,,SP2,Seasonal leaf litter
+Plot-P03,Q2,Bare Soil_SP2,Bare Soil,45,Bare Ground,,,,0.0,ARAI Hills I,,,,,,,,SP2,Exposed surface
+Plot-P03,Q3,Herb_SP3,Herb,12,Mixed Herbs,,,,0.08,ARAI Hills I,,,,,,,,SP3,"Mixed herb layer, variable"
+Plot-P03,Q3,Grass_SP3,Grass,13,Mixed Grasses,,,,0.17,ARAI Hills I,,,,,,,,SP3,Seeding/Drying
+Plot-P03,Q3,Litter_SP3,Litter,19,Decomposing Matter,,,,0.05,ARAI Hills I,,,,,,,,SP3,Seasonal leaf litter
+Plot-P03,Q3,Bare Soil_SP3,Bare Soil,51,Bare Ground,,,,0.0,ARAI Hills I,,,,,,,,SP3,Exposed surface
+Plot-P03,Q4,Herb_SP4,Herb,36,Mixed Herbs,,,,0.1,ARAI Hills I,,,,,,,,SP4,"Mixed herb layer, variable"
+Plot-P03,Q4,Grass_SP4,Grass,23,Mixed Grasses,,,,0.2,ARAI Hills I,,,,,,,,SP4,Seeding/Drying
+Plot-P03,Q4,Litter_SP4,Litter,42,Decomposing Matter,,,,0.04,ARAI Hills I,,,,,,,,SP4,Seasonal leaf litter
+Plot-P03,Q4,Bare Soil_SP4,Bare Soil,11,Bare Ground,,,,0.0,ARAI Hills I,,,,,,,,SP4,Exposed surface
+Plot-P04,Q1,Herb_SP1,Herb,14,Mixed Herbs,,,,0.14,ARAI Hills II,,,,,,,,SP1,"Mixed herb layer, variable"
+Plot-P04,Q1,Grass_SP1,Grass,27,Mixed Grasses,,,,0.19,ARAI Hills II,,,,,,,,SP1,Seeding/Drying
+Plot-P04,Q1,Litter_SP1,Litter,43,Decomposing Matter,,,,0.04,ARAI Hills II,,,,,,,,SP1,Seasonal leaf litter
+Plot-P04,Q1,Bare Soil_SP1,Bare Soil,22,Bare Ground,,,,0.0,ARAI Hills II,,,,,,,,SP1,Exposed surface
+Plot-P04,Q2,Herb_SP2,Herb,12,Mixed Herbs,,,,0.2,ARAI Hills II,,,,,,,,SP2,"Mixed herb layer, variable"
+Plot-P04,Q2,Grass_SP2,Grass,13,Mixed Grasses,,,,0.14,ARAI Hills II,,,,,,,,SP2,Seeding/Drying
+Plot-P04,Q2,Litter_SP2,Litter,46,Decomposing Matter,,,,0.04,ARAI Hills II,,,,,,,,SP2,Seasonal leaf litter
+Plot-P04,Q2,Bare Soil_SP2,Bare Soil,40,Bare Ground,,,,0.0,ARAI Hills II,,,,,,,,SP2,Exposed surface
+Plot-P04,Q3,Herb_SP3,Herb,45,Mixed Herbs,,,,0.05,ARAI Hills II,,,,,,,,SP3,"Mixed herb layer, variable"
+Plot-P04,Q3,Grass_SP3,Grass,18,Mixed Grasses,,,,0.16,ARAI Hills II,,,,,,,,SP3,Seeding/Drying
+Plot-P04,Q3,Litter_SP3,Litter,22,Decomposing Matter,,,,0.0,ARAI Hills II,,,,,,,,SP3,Seasonal leaf litter
+Plot-P04,Q3,Bare Soil_SP3,Bare Soil,13,Bare Ground,,,,0.0,ARAI Hills II,,,,,,,,SP3,Exposed surface
+Plot-P04,Q4,Herb_SP4,Herb,23,Mixed Herbs,,,,0.2,ARAI Hills II,,,,,,,,SP4,"Mixed herb layer, variable"
+Plot-P04,Q4,Grass_SP4,Grass,24,Mixed Grasses,,,,0.05,ARAI Hills II,,,,,,,,SP4,Seeding/Drying
+Plot-P04,Q4,Litter_SP4,Litter,20,Decomposing Matter,,,,0.0,ARAI Hills II,,,,,,,,SP4,Seasonal leaf litter
+Plot-P04,Q4,Bare Soil_SP4,Bare Soil,44,Bare Ground,,,,0.0,ARAI Hills II,,,,,,,,SP4,Exposed surface
+Plot-P05,Q1,Herb_SP1,Herb,31,Mixed Herbs,,,,0.08,Panshet Backwaters,,,,,,,,SP1,"Mixed herb layer, variable"
+Plot-P05,Q1,Grass_SP1,Grass,21,Mixed Grasses,,,,0.14,Panshet Backwaters,,,,,,,,SP1,Live
+Plot-P05,Q1,Litter_SP1,Litter,14,Decomposing Matter,,,,0.0,Panshet Backwaters,,,,,,,,SP1,Seasonal leaf litter
+Plot-P05,Q1,Bare Soil_SP1,Bare Soil,30,Bare Ground,,,,0.0,Panshet Backwaters,,,,,,,,SP1,Exposed surface
+Plot-P05,Q2,Herb_SP2,Herb,32,Mixed Herbs,,,,0.14,Panshet Backwaters,,,,,,,,SP2,"Mixed herb layer, variable"
+Plot-P05,Q2,Grass_SP2,Grass,12,Mixed Grasses,,,,0.1,Panshet Backwaters,,,,,,,,SP2,Live
+Plot-P05,Q2,Litter_SP2,Litter,20,Decomposing Matter,,,,0.05,Panshet Backwaters,,,,,,,,SP2,Seasonal leaf litter
+Plot-P05,Q2,Bare Soil_SP2,Bare Soil,45,Bare Ground,,,,0.0,Panshet Backwaters,,,,,,,,SP2,Exposed surface
+Plot-P05,Q3,Herb_SP3,Herb,32,Mixed Herbs,,,,0.2,Panshet Backwaters,,,,,,,,SP3,"Mixed herb layer, variable"
+Plot-P05,Q3,Grass_SP3,Grass,23,Mixed Grasses,,,,0.22,Panshet Backwaters,,,,,,,,SP3,Live
+Plot-P05,Q3,Litter_SP3,Litter,39,Decomposing Matter,,,,0.01,Panshet Backwaters,,,,,,,,SP3,Seasonal leaf litter
+Plot-P05,Q3,Bare Soil_SP3,Bare Soil,5,Bare Ground,,,,0.0,Panshet Backwaters,,,,,,,,SP3,Exposed surface
+Plot-P05,Q4,Herb_SP4,Herb,35,Mixed Herbs,,,,0.16,Panshet Backwaters,,,,,,,,SP4,"Mixed herb layer, variable"
+Plot-P05,Q4,Grass_SP4,Grass,17,Mixed Grasses,,,,0.24,Panshet Backwaters,,,,,,,,SP4,Live
+Plot-P05,Q4,Litter_SP4,Litter,46,Decomposing Matter,,,,0.03,Panshet Backwaters,,,,,,,,SP4,Seasonal leaf litter
+Plot-P05,Q4,Bare Soil_SP4,Bare Soil,17,Bare Ground,,,,0.0,Panshet Backwaters,,,,,,,,SP4,Exposed surface
+Plot-P06,Q1,Herb_SP1,Herb,44,Mixed Herbs,,,,0.06,Chande Village,,,,,,,,SP1,"Mixed herb layer, variable"
+Plot-P06,Q1,Grass_SP1,Grass,40,Mixed Grasses,,,,0.24,Chande Village,,,,,,,,SP1,Live
+Plot-P06,Q1,Litter_SP1,Litter,35,Decomposing Matter,,,,0.05,Chande Village,,,,,,,,SP1,Seasonal leaf litter
+Plot-P06,Q1,Bare Soil_SP1,Bare Soil,4,Bare Ground,,,,0.0,Chande Village,,,,,,,,SP1,Exposed surface
+Plot-P06,Q2,Herb_SP2,Herb,11,Mixed Herbs,,,,0.05,Chande Village,,,,,,,,SP2,"Mixed herb layer, variable"
+Plot-P06,Q2,Grass_SP2,Grass,13,Mixed Grasses,,,,0.12,Chande Village,,,,,,,,SP2,Live
+Plot-P06,Q2,Litter_SP2,Litter,30,Decomposing Matter,,,,0.04,Chande Village,,,,,,,,SP2,Seasonal leaf litter
+Plot-P06,Q2,Bare Soil_SP2,Bare Soil,46,Bare Ground,,,,0.0,Chande Village,,,,,,,,SP2,Exposed surface
+Plot-P06,Q3,Herb_SP3,Herb,32,Mixed Herbs,,,,0.12,Chande Village,,,,,,,,SP3,"Mixed herb layer, variable"
+Plot-P06,Q3,Grass_SP3,Grass,25,Mixed Grasses,,,,0.12,Chande Village,,,,,,,,SP3,Live
+Plot-P06,Q3,Litter_SP3,Litter,25,Decomposing Matter,,,,0.02,Chande Village,,,,,,,,SP3,Seasonal leaf litter
+Plot-P06,Q3,Bare Soil_SP3,Bare Soil,23,Bare Ground,,,,0.0,Chande Village,,,,,,,,SP3,Exposed surface
+Plot-P06,Q4,Herb_SP4,Herb,13,Mixed Herbs,,,,0.05,Chande Village,,,,,,,,SP4,"Mixed herb layer, variable"
+Plot-P06,Q4,Grass_SP4,Grass,20,Mixed Grasses,,,,0.16,Chande Village,,,,,,,,SP4,Live
+Plot-P06,Q4,Litter_SP4,Litter,21,Decomposing Matter,,,,0.01,Chande Village,,,,,,,,SP4,Seasonal leaf litter
+Plot-P06,Q4,Bare Soil_SP4,Bare Soil,49,Bare Ground,,,,0.0,Chande Village,,,,,,,,SP4,Exposed surface
+Plot-P07,Q1,Herb_SP1,Herb,16,Mixed Herbs,,,,0.08,Warje Hills I,,,,,,,,SP1,"Mixed herb layer, variable"
+Plot-P07,Q1,Grass_SP1,Grass,39,Mixed Grasses,,,,0.17,Warje Hills I,,,,,,,,SP1,Seeding/Drying
+Plot-P07,Q1,Litter_SP1,Litter,32,Decomposing Matter,,,,0.0,Warje Hills I,,,,,,,,SP1,Seasonal leaf litter
+Plot-P07,Q1,Bare Soil_SP1,Bare Soil,20,Bare Ground,,,,0.0,Warje Hills I,,,,,,,,SP1,Exposed surface
+Plot-P07,Q2,Herb_SP2,Herb,24,Mixed Herbs,,,,0.2,Warje Hills I,,,,,,,,SP2,"Mixed herb layer, variable"
+Plot-P07,Q2,Grass_SP2,Grass,38,Mixed Grasses,,,,0.21,Warje Hills I,,,,,,,,SP2,Seeding/Drying
+Plot-P07,Q2,Litter_SP2,Litter,26,Decomposing Matter,,,,0.05,Warje Hills I,,,,,,,,SP2,Seasonal leaf litter
+Plot-P07,Q2,Bare Soil_SP2,Bare Soil,16,Bare Ground,,,,0.0,Warje Hills I,,,,,,,,SP2,Exposed surface
+Plot-P07,Q3,Herb_SP3,Herb,24,Mixed Herbs,,,,0.09,Warje Hills I,,,,,,,,SP3,"Mixed herb layer, variable"
+Plot-P07,Q3,Grass_SP3,Grass,27,Mixed Grasses,,,,0.24,Warje Hills I,,,,,,,,SP3,Seeding/Drying
+Plot-P07,Q3,Litter_SP3,Litter,42,Decomposing Matter,,,,0.05,Warje Hills I,,,,,,,,SP3,Seasonal leaf litter
+Plot-P07,Q3,Bare Soil_SP3,Bare Soil,5,Bare Ground,,,,0.0,Warje Hills I,,,,,,,,SP3,Exposed surface
+Plot-P07,Q4,Herb_SP4,Herb,21,Mixed Herbs,,,,0.14,Warje Hills I,,,,,,,,SP4,"Mixed herb layer, variable"
+Plot-P07,Q4,Grass_SP4,Grass,11,Mixed Grasses,,,,0.14,Warje Hills I,,,,,,,,SP4,Seeding/Drying
+Plot-P07,Q4,Litter_SP4,Litter,58,Decomposing Matter,,,,0.02,Warje Hills I,,,,,,,,SP4,Seasonal leaf litter
+Plot-P07,Q4,Bare Soil_SP4,Bare Soil,10,Bare Ground,,,,0.0,Warje Hills I,,,,,,,,SP4,Exposed surface
+Plot-P08,Q1,Herb_SP1,Herb,19,Mixed Herbs,,,,0.13,Warje Hills II,,,,,,,,SP1,"Mixed herb layer, variable"
+Plot-P08,Q1,Grass_SP1,Grass,33,Mixed Grasses,,,,0.12,Warje Hills II,,,,,,,,SP1,Seeding/Drying
+Plot-P08,Q1,Litter_SP1,Litter,27,Decomposing Matter,,,,0.03,Warje Hills II,,,,,,,,SP1,Seasonal leaf litter
+Plot-P08,Q1,Bare Soil_SP1,Bare Soil,21,Bare Ground,,,,0.0,Warje Hills II,,,,,,,,SP1,Exposed surface
+Plot-P08,Q2,Herb_SP2,Herb,21,Mixed Herbs,,,,0.18,Warje Hills II,,,,,,,,SP2,"Mixed herb layer, variable"
+Plot-P08,Q2,Grass_SP2,Grass,29,Mixed Grasses,,,,0.09,Warje Hills II,,,,,,,,SP2,Seeding/Drying
+Plot-P08,Q2,Litter_SP2,Litter,29,Decomposing Matter,,,,0.0,Warje Hills II,,,,,,,,SP2,Seasonal leaf litter
+Plot-P08,Q2,Bare Soil_SP2,Bare Soil,31,Bare Ground,,,,0.0,Warje Hills II,,,,,,,,SP2,Exposed surface
+Plot-P08,Q3,Herb_SP3,Herb,28,Mixed Herbs,,,,0.05,Warje Hills II,,,,,,,,SP3,"Mixed herb layer, variable"
+Plot-P08,Q3,Grass_SP3,Grass,20,Mixed Grasses,,,,0.17,Warje Hills II,,,,,,,,SP3,Seeding/Drying
+Plot-P08,Q3,Litter_SP3,Litter,52,Decomposing Matter,,,,0.02,Warje Hills II,,,,,,,,SP3,Seasonal leaf litter
+Plot-P08,Q3,Bare Soil_SP3,Bare Soil,2,Bare Ground,,,,0.0,Warje Hills II,,,,,,,,SP3,Exposed surface
+Plot-P08,Q4,Herb_SP4,Herb,18,Mixed Herbs,,,,0.16,Warje Hills II,,,,,,,,SP4,"Mixed herb layer, variable"
+Plot-P08,Q4,Grass_SP4,Grass,12,Mixed Grasses,,,,0.13,Warje Hills II,,,,,,,,SP4,Seeding/Drying
+Plot-P08,Q4,Litter_SP4,Litter,38,Decomposing Matter,,,,0.01,Warje Hills II,,,,,,,,SP4,Seasonal leaf litter
+Plot-P08,Q4,Bare Soil_SP4,Bare Soil,32,Bare Ground,,,,0.0,Warje Hills II,,,,,,,,SP4,Exposed surface
+Plot-P09,Q1,Herb_SP1,Herb,40,Mixed Herbs,,,,0.08,Warje Urban Garden,,,,,,,,SP1,"Mixed herb layer, variable"
+Plot-P09,Q1,Grass_SP1,Grass,25,Mixed Grasses,,,,0.05,Warje Urban Garden,,,,,,,,SP1,Seeding/Drying
+Plot-P09,Q1,Litter_SP1,Litter,18,Decomposing Matter,,,,0.04,Warje Urban Garden,,,,,,,,SP1,Seasonal leaf litter
+Plot-P09,Q1,Bare Soil_SP1,Bare Soil,17,Bare Ground,,,,0.0,Warje Urban Garden,,,,,,,,SP1,Exposed surface
+Plot-P09,Q2,Herb_SP2,Herb,45,Mixed Herbs,,,,0.1,Warje Urban Garden,,,,,,,,SP2,"Mixed herb layer, variable"
+Plot-P09,Q2,Grass_SP2,Grass,30,Mixed Grasses,,,,0.14,Warje Urban Garden,,,,,,,,SP2,Seeding/Drying
+Plot-P09,Q2,Litter_SP2,Litter,55,Decomposing Matter,,,,0.05,Warje Urban Garden,,,,,,,,SP2,Seasonal leaf litter
+Plot-P09,Q2,Bare Soil_SP2,Bare Soil,10,Bare Ground,,,,0.0,Warje Urban Garden,,,,,,,,SP2,Exposed surface
+Plot-P09,Q3,Herb_SP3,Herb,15,Mixed Herbs,,,,0.14,Warje Urban Garden,,,,,,,,SP3,"Mixed herb layer, variable"
+Plot-P09,Q3,Grass_SP3,Grass,10,Mixed Grasses,,,,0.21,Warje Urban Garden,,,,,,,,SP3,Seeding/Drying
+Plot-P09,Q3,Litter_SP3,Litter,36,Decomposing Matter,,,,0.04,Warje Urban Garden,,,,,,,,SP3,Seasonal leaf litter
+Plot-P09,Q3,Bare Soil_SP3,Bare Soil,47,Bare Ground,,,,0.0,Warje Urban Garden,,,,,,,,SP3,Exposed surface
+Plot-P09,Q4,Herb_SP4,Herb,20,Mixed Herbs,,,,0.15,Warje Urban Garden,,,,,,,,SP4,"Mixed herb layer, variable"
+Plot-P09,Q4,Grass_SP4,Grass,19,Mixed Grasses,,,,0.18,Warje Urban Garden,,,,,,,,SP4,Seeding/Drying
+Plot-P09,Q4,Litter_SP4,Litter,54,Decomposing Matter,,,,0.02,Warje Urban Garden,,,,,,,,SP4,Seasonal leaf litter
+Plot-P09,Q4,Bare Soil_SP4,Bare Soil,18,Bare Ground,,,,0.0,Warje Urban Garden,,,,,,,,SP4,Exposed surface

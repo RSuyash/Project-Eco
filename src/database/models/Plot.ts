@@ -89,7 +89,30 @@ export interface CanopyPhotoAnalysis {
   gapFraction: number;
   analysisDate: string; // ISO date string
   analysisImagePath?: string; // Path to the analyzed image with visual output
+  maskUrl?: string; // URL to the binary mask (canopy vs non-canopy)
+  segmentedUrl?: string; // URL to the segmented image with overlay
   notes?: string;
+  storageType: 'local' | 'project' | 'uploaded'; // How the image is stored
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
+}
+
+export interface CanopyImageStorage {
+  id: string;
+  projectId: string;
+  plotId: string;
+  quadrantId: string;
+  fileName: string;
+  originalFileName: string;
+  path: string;
+  size: number; // file size in bytes
+  type: string; // MIME type
+  uploadedAt: string;
+  uploadedBy: string; // user ID
+  status: 'pending' | 'processed' | 'analyzed' | 'available';
+  metadata: {
+    width: number;
+    height: number;
+    // Add any other relevant metadata
+  };
 }

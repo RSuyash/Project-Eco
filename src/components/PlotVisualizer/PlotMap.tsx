@@ -133,14 +133,26 @@ const PlotMap: React.FC<PlotMapProps> = ({ selectedPlotId }) => {
   }
 
   return (
-    <Paper sx={{ p: 2, mb: 2 }}>
-      {/* Header with title and dropdown - stacked on mobile */}
-      <Box sx={{ 
-        display: 'flex', 
+    <Paper
+      sx={{
+        p: 0,           // Remove internal padding to maximize space
+        mb: 2,
+        height: '100%',
+        width: '100%',   // Explicitly set width to 100%
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,         // Allow it to grow to fill available space
+      }}
+    >
+      {/* Header with title and dropdown - full width */}
+      <Box sx={{
+        display: 'flex',
         flexDirection: isMobile ? 'column' : 'row',
         alignItems: isMobile ? 'flex-start' : 'center',
         gap: isMobile ? 1 : 2,
-        mb: 2 
+        p: 2,           // Add padding only to header
+        borderBottom: 1,
+        borderColor: 'divider'
       }}>
         <Typography variant="h6" sx={{ minWidth: isMobile ? '100%' : 'auto' }}>
           Vegetation Plots Map
@@ -163,12 +175,17 @@ const PlotMap: React.FC<PlotMapProps> = ({ selectedPlotId }) => {
         </FormControl>
       </Box>
 
-      {visualizationData && selectedPlot && (
-        <Grid container spacing={2}>
-          {/* Visualization - Full width on both mobile and desktop */}
-          <Grid item xs={12}>
-            <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
-              <Box sx={{ flex: 1, minWidth: 0 }}> {/* This ensures the visualization takes available space */}
+      {/* Main content area */}
+      <Box sx={{ p: 2, flex: 1 }}>
+        {visualizationData && selectedPlot && (
+          <Grid container spacing={2} sx={{ height: '100%' }}>
+            {/* Visualization area - takes available space */}
+            <Grid item xs={12} md={selectedPlot ? 9 : 12} sx={{ height: '100%' }}>
+              <Box sx={{
+                height: '100%',
+                width: '100%',  // Ensure full width
+                minHeight: { xs: '500px', md: '600px' }  // Set minimum heights for better visualization
+              }}>
                 <PlotVisualizer
                   plotSize={10}
                   plotLabel={plots.find(p => p.id === selectedPlot)?.name || selectedPlot}
@@ -179,22 +196,26 @@ const PlotMap: React.FC<PlotMapProps> = ({ selectedPlotId }) => {
                   herbLegend={visualizationData.herbLegend}
                 />
               </Box>
-              
-              {/* Legend - Sidebar layout */}
-              <Box sx={{ 
-                minWidth: { xs: '100%', md: 250 }, 
-                maxWidth: { xs: '100%', md: 250 },
-                flexShrink: 0
-              }}>
-                <Legend
-                  woody={visualizationData.woodyLegend}
-                  herb={visualizationData.herbLegend}
-                />
-              </Box>
-            </Box>
+            </Grid>
+
+            {/* Legend area - only shown when plot is selected */}
+            {selectedPlot && (
+              <Grid item xs={12} md={3} sx={{ height: '100%' }}>
+                <Box sx={{
+                  height: '100%',
+                  minWidth: { xs: '100%', md: 250 },
+                  maxWidth: { xs: '100%', md: 250 }
+                }}>
+                  <Legend
+                    woody={visualizationData.woodyLegend}
+                    herb={visualizationData.herbLegend}
+                  />
+                </Box>
+              </Grid>
+            )}
           </Grid>
-        </Grid>
-      )}
+        )}
+      </Box>
     </Paper>
   );
 };

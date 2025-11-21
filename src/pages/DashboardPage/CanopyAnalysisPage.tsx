@@ -1,67 +1,28 @@
 // src/pages/DashboardPage/CanopyAnalysisPage.tsx
-
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
   Container,
-  Grid,
   Paper,
-  Tabs,
-  Tab,
   Alert,
   LinearProgress,
   Button,
-  Stepper,
-  Step,
-  StepLabel,
-  StepContent,
-  TextField,
-  Card,
-  CardContent,
-  CardHeader,
-  IconButton,
-  Collapse,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon,
-  Avatar,
-  Chip,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  Tabs,
+  Tab,
   Snackbar,
-  Alert as MuiAlert
+  Alert as MuiAlert,
 } from '@mui/material';
-import {
-  DataGrid,
-  GridColDef,
-  GridRowSelectionModel
-} from '@mui/x-data-grid';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Breadcrumb from '../../components/Breadcrumb';
 import { getProjectById } from '../../services/dbService';
-import { readCSVFile, parseCSVData } from '../../services/dataImportService';
+import { CanopyAnalysisProvider } from '../../components/CanopyAnalysis/context/CanopyAnalysisContext';
+import ImageUpload from '../../components/CanopyAnalysis/components/ImageUpload';
+import AnalysisDashboard from '../../components/CanopyAnalysis/components/AnalysisDashboard';
+import AnalysisResults from '../../components/CanopyAnalysis/components/AnalysisResults';
 import {
-  processHerbFloorVegetationData
-} from '../../services/fieldDataService';
-import { CanopyPhotoAnalyzer } from '../../components/CanopyPhotoAnalyzer';
-import { CanopyCoverAnalyzer } from '../../components/CanopyCoverAnalyzer';
-import { CanopyAnalysisVisualization } from '../../components/CanopyAnalysisVisualization';
-import { CanopyPhotoAnalysis, CanopyCoverData } from '../../database/models/Plot';
-import {
-  CloudUpload as CloudUploadIcon,
-  CheckCircle as CheckCircleIcon,
-  Error as ErrorIcon,
-  ExpandMore as ExpandMoreIcon,
-  Help as HelpIcon,
   PictureAsPdf as PictureAsPdfIcon,
-  FileDownload as FileDownloadIcon
+  FileDownload as FileDownloadIcon,
 } from '@mui/icons-material';
 
 interface Project {
@@ -113,27 +74,10 @@ function a11yProps(index: number) {
 
 const CanopyAnalysisPage = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
-  const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [woodyData, setWoodyData] = useState<any[]>([]);
-  const [herbFloorData, setHerbFloorData] = useState<any[]>([]);
-  const [canopyCoverData, setCanopyCoverData] = useState<CanopyCoverData[]>([]);
-  const [canopyPhotoAnalyses, setCanopyPhotoAnalyses] = useState<CanopyPhotoAnalysis[]>([]);
-
-  // New state for enhanced workflow
-  const [activeStep, setActiveStep] = useState(0);
-  const [csvDataUploaded, setCsvDataUploaded] = useState(false);
-  const [imageDataUploaded, setImageDataUploaded] = useState(false);
-  const [csvPreview, setCsvPreview] = useState<any[]>([]);
-  const [csvColumns, setCsvColumns] = useState<GridColDef[]>([]);
-  const [uploadedImages, setUploadedImages] = useState<any[]>([]);
-  const [analysisProgress, setAnalysisProgress] = useState(0);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResults, setAnalysisResults] = useState<any[]>([]);
-  const [helpPanelOpen, setHelpPanelOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState(0); // 0: Workbench, 1: Results
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'warning' | 'info'>('success');
@@ -162,201 +106,139 @@ const CanopyAnalysisPage = () => {
     }
   }, [id]);
 
-  // Load vegetation data when project is loaded
-  useEffect(() => {
-    const loadVegetationData = async () => {
-      if (!project) return;
+  // Export handlers
+  const handleExportPdf = () => {
+    showSnackbar('PDF export started', 'info');
+  };
 
-      try {
-        setLoading(true);
-        
-        const woodyCsvText = await readCSVFile('/vegetation-plotting/field-data/woody_vegetation.csv');
-        const herbFloorCsvText = await readCSVFile('/vegetation-plotting/field-data/herb_floor_vegetation.csv');
-        
-        const { canopyCoverData: processedCanopyData } = await processHerbFloorVegetationData(herbFloorCsvText);
-        
-        setWoodyData(parseCSVData(woodyCsvText));
-        setHerbFloorData(parseCSVData(herbFloorCsvText));
-        setCanopyCoverData(processedCanopyData);
-      } catch (err) {
-        console.error('Error loading vegetation data:', err);
-        setError('Failed to load vegetation data');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const showSnackbar = (message: string, severity: 'success' | 'error' | 'warning' | 'info') => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
 
-    if (project) {
-      loadVegetationData();
-    }
-  }, [project]);
+  const handleExportCsv = () => {
+    showSnackbar('CSV export started', 'info');
+  };
 
+  const handleSaveToProject = () => {
+    showSnackbar('Analysis results saved to project', 'success');
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
+  // Tab change handler
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
 
-  const plotIds = Array.from(
-    new Set([
-      ...woodyData.map(row => row.Plot_ID).filter(Boolean),
-      ...herbFloorData.map(row => row.Plot_ID).filter(Boolean)
-    ])
-  );
-
-  const handleNewAnalysis = (analysis: CanopyPhotoAnalysis) => {
-    setCanopyPhotoAnalyses(prev => [...prev, analysis]);
-  };
-
-  const woodyColumns: GridColDef[] = woodyData.length > 0 ? Object.keys(woodyData[0]).map(key => ({
-    field: key,
-    headerName: key,
-    width: 150,
-  })) : [];
-
-  const herbFloorColumns: GridColDef[] = herbFloorData.length > 0 ? Object.keys(herbFloorData[0]).map(key => ({
-    field: key,
-    headerName: key,
-    width: 150,
-  })) : [];
-
   return (
-    <Box>
-      <Breadcrumb />
-      <Container maxWidth="xl" sx={{ mt: 4, pb: 4 }}>
-        {loading && (
-          <Paper sx={{ p: 4, textAlign: 'center' }}>
-            <Typography variant="h6" gutterBottom>
-              Loading canopy analysis...
-            </Typography>
-            <LinearProgress />
-          </Paper>
-        )}
-
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
-
-        {!loading && project && (
-          <>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Box>
-                <Typography variant="h4" component="h1" gutterBottom>
-                  Canopy Analysis - {project.name}
-                </Typography>
-                <Typography variant="body1" color="text.secondary">
-                  Analyze canopy coverage and vegetation structure for this project
-                </Typography>
-              </Box>
-              <Button 
-                variant="outlined" 
-                onClick={() => navigate(`/dashboard/projects/${id}/view`)}
-              >
-                Back to Project
-              </Button>
-            </Box>
-
-            <Paper sx={{ mb: 3 }}>
-              <Tabs
-                value={activeTab}
-                onChange={handleTabChange}
-                sx={{
-                  borderBottom: 1,
-                  borderColor: 'divider',
-                  '& .MuiTab-root': {
-                    textTransform: 'none',
-                    fontWeight: 'medium'
-                  }
-                }}
-              >
-                <Tab label="Field Data Visualization" {...a11yProps(0)} />
-                <Tab label="Photo Analysis" {...a11yProps(1)} />
-                <Tab label="Canopy Cover Analysis" {...a11yProps(2)} />
-                <Tab label="Results & Visualization" {...a11yProps(3)} />
-              </Tabs>
+    <CanopyAnalysisProvider projectId={id || ''}>
+      <Box>
+        <Breadcrumb />
+        <Container maxWidth="xl" sx={{ mt: 4, pb: 4 }}>
+          {loading && (
+            <Paper sx={{ p: 4, textAlign: 'center' }}>
+              <Typography variant="h6" gutterBottom>
+                Loading canopy analysis...
+              </Typography>
+              <LinearProgress />
             </Paper>
+          )}
 
-            <TabPanel value={activeTab} index={0}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <Paper sx={{ p: 3, height: 600, width: '100%' }}>
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+
+          {!loading && project && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: 'calc(100vh - 200px)' }}>
+              {/* Configuration and Main Content Area */}
+              <Box sx={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+                {/* Configuration Sidebar */}
+                <Box sx={{
+                  width: '30%',
+                  minWidth: '300px',
+                  backgroundColor: '#f9f9f9',
+                  borderRight: '1px solid #e0e0e0',
+                  overflowY: 'auto',
+                  padding: 2,
+                  maxHeight: 'calc(100vh - 170px)' // Account for header and other elements
+                }}>
+                  <Typography variant="h6" gutterBottom>
+                    Analysis Configuration
+                  </Typography>
+
+                  {/* Data Sources Section */}
+                  <Paper sx={{ p: 2, mt: 2, mb: 2 }}>
                     <Typography variant="h6" gutterBottom>
-                      Woody Vegetation Data
+                      Project Details
                     </Typography>
-                    <DataGrid
-                      rows={woodyData.map((row, index) => ({ id: index, ...row }))}
-                      columns={woodyColumns}
-                      initialState={{
-                        pagination: {
-                          paginationModel: {
-                            pageSize: 10,
-                          },
-                        },
-                      }}
-                      pageSizeOptions={[10]}
-                      checkboxSelection
-                      disableRowSelectionOnClick
-                    />
-                  </Paper>
-                </Grid>
-                <Grid item xs={12}>
-                  <Paper sx={{ p: 3, height: 600, width: '100%' }}>
-                    <Typography variant="h6" gutterBottom>
-                      Herb/Floor Vegetation Data
+                    <Typography variant="body2">
+                      <strong>Project:</strong> {project.name}
                     </Typography>
-                    <DataGrid
-                      rows={herbFloorData.map((row, index) => ({ id: index, ...row }))}
-                      columns={herbFloorColumns}
-                      initialState={{
-                        pagination: {
-                          paginationModel: {
-                            pageSize: 10,
-                          },
-                        },
-                      }}
-                      pageSizeOptions={[10]}
-                      checkboxSelection
-                      disableRowSelectionOnClick
-                    />
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      <strong>Description:</strong> {project.description}
+                    </Typography>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                      <strong>Status:</strong> {project.status}
+                    </Typography>
                   </Paper>
-                </Grid>
-              </Grid>
-            </TabPanel>
+                </Box>
 
-            <TabPanel value={activeTab} index={1}>
-              <CanopyPhotoAnalyzer 
-                plotIds={plotIds} 
-                onAnalysisComplete={handleNewAnalysis}
-                existingAnalyses={canopyPhotoAnalyses}
-              />
-            </TabPanel>
+                {/* Main Content Area */}
+                <Box sx={{
+                  width: '70%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                  padding: 2
+                }}>
+                  <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                    <Tabs value={activeTab} onChange={handleTabChange} aria-label="canopy analysis tabs">
+                      <Tab label="Upload & Analyze" {...a11yProps(0)} />
+                      <Tab label="Results Dashboard" {...a11yProps(1)} />
+                    </Tabs>
+                  </Box>
 
-            <TabPanel value={activeTab} index={2}>
-              {canopyCoverData.length > 0 ? (
-                <CanopyCoverAnalyzer 
-                  canopyCoverData={canopyCoverData} 
-                  plotIds={plotIds} 
-                />
-              ) : (
-                <Alert severity="info">
-                  No canopy cover data available. Please import field data first.
-                </Alert>
-              )}
-            </TabPanel>
+                  <TabPanel value={activeTab} index={0}>
+                    <Paper sx={{ p: 2, overflowY: 'auto', maxHeight: 'calc(100vh - 250px)' }}>
+                      <Typography variant="h6" gutterBottom>
+                        Canopy Analysis Workbench
+                      </Typography>
+                      <ImageUpload />
+                      <AnalysisDashboard />
+                    </Paper>
+                  </TabPanel>
 
-            <TabPanel value={activeTab} index={3}>
-              {canopyPhotoAnalyses.length > 0 ? (
-                <CanopyAnalysisVisualization analyses={canopyPhotoAnalyses} />
-              ) : (
-                <Alert severity="info">
-                  No canopy analysis results available. Upload and analyze canopy photos to see visualizations.
-                </Alert>
-              )}
-            </TabPanel>
-          </>
-        )}
-      </Container>
-    </Box>
+                  <TabPanel value={activeTab} index={1}>
+                    <AnalysisResults />
+                  </TabPanel>
+                </Box>
+              </Box>
+            </Box>
+          )}
+
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={6000}
+            onClose={handleCloseSnackbar}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          >
+            <MuiAlert
+              onClose={handleCloseSnackbar}
+              severity={snackbarSeverity}
+              sx={{ width: '100%' }}
+            >
+              {snackbarMessage}
+            </MuiAlert>
+          </Snackbar>
+        </Container>
+      </Box>
+    </CanopyAnalysisProvider>
   );
 };
 

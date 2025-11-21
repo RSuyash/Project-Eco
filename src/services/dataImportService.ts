@@ -1,6 +1,7 @@
 // src/services/dataImportService.ts
 
 import { getAllProjects, updateProject } from './dbService';
+import Papa from 'papaparse'; // Import PapaParse
 
 interface Project {
   id: string;
@@ -16,31 +17,97 @@ interface Project {
   lastSynced?: string;
 }
 
+// Define interfaces for the data to be sent to the backend, matching Pydantic models
+interface WoodyVegetationData {
+  Plot_ID: string;
+  Location_Name: string;
+  Quad_ID: string;
+  Species_Scientific: string;
+  Growth_Form: string;
+  Tree_ID: string;
+  Height_m: number;
+  Condition: string;
+  GBH_Stem1_cm: number;
+  GBH_Stem2_cm: number;
+  GBH_Stem3_cm: number;
+  GBH_Stem4_cm: number;
+  GBH_Stem5_cm: number;
+  GBH_Stem6_cm: number;
+  Remarks: string;
+  Total_GBH_cm: number;
+}
+
+interface HerbFloorVegetationData {
+  Plot_ID: string;
+  Location_Name: string;
+  Subplot_ID: string;
+  Layer_Type: string;
+  Species_or_Category: string;
+  Count_or_Cover: number;
+  Avg_Height_cm: number;
+  Notes: string;
+}
+
 // Function to import field data from CSV
-export const importFieldData = async (projectId: string, filePath: string): Promise<boolean> => {
+export const importFieldData = async (woodyCsvText: string, herbFloorCsvText: string): Promise<boolean> => {
   try {
-    const project = await getProjectById(projectId);
-    if (!project) {
-      throw new Error(`Project with id ${projectId} not found`);
+    // Parse woody vegetation CSV
+    const woodyResults = Papa.parse<WoodyVegetationData>(woodyCsvText, {
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: true, // Automatically convert numbers
+    });
+
+    if (woodyResults.errors.length > 0) {
+      console.error('Woody CSV parsing errors:', woodyResults.errors);
+      throw new Error('Failed to parse woody vegetation CSV.');
     }
 
-    // Read and process the CSV file
-    const csvText = await readCSVFile(filePath);
-    const csvData = parseCSVData(csvText);
-    const processedData = processFieldData(csvData);
+    // Parse herb floor vegetation CSV
+    const herbFloorResults = Papa.parse<HerbFloorVegetationData>(herbFloorCsvText, {
+      header: true,
+      skipEmptyLines: true,
+      dynamicTyping: true, // Automatically convert numbers
+      transformHeader: (header) => header.replace('%', '_percent'), // Handle '%' in header
+    });
 
-    const alreadyImported = project.dataSources.includes('Field Data');
+    if (herbFloorResults.errors.length > 0) {
+      console.error('Herb Floor CSV parsing errors:', herbFloorResults.errors);
+      throw new Error('Failed to parse herb floor vegetation CSV.');
+    }
 
-    // Update the project with the new data
-    const updatedProject = {
-      ...project,
-      dataSources: [...new Set([...project.dataSources, 'Field Data'])], // Avoid duplicates
-      totalDataPoints: alreadyImported ? project.totalDataPoints : (project.totalDataPoints || 0) + processedData.totalDataPoints,
-      lastSynced: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+    // Rename 'Count_or_Cover_percent' back to 'Count_or_Cover' for the backend Pydantic model
+    const herbDataForBackend = herbFloorResults.data.map(row => {
+      const newRow: any = { ...row };
+      if (newRow.Count_or_Cover_percent !== undefined) {
+        newRow.Count_or_Cover = newRow.Count_or_Cover_percent;
+        delete newRow.Count_or_Cover_percent;
+      }
+      return newRow;
+    });
+
+    // Construct the request body for the backend API
+    const requestBody = {
+      woody_data: woodyResults.data,
+      herb_data: herbDataForBackend,
     };
 
-    await updateProject(updatedProject);
+    // Make the API call to the backend
+    const response = await fetch('http://localhost:8000/api/v1/import-field-data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`Backend API call failed: ${response.status} - ${errorData.detail || response.statusText}`);
+    }
+
+    const responseData = await response.json();
+    console.log('Field data import successful:', responseData);
     return true;
   } catch (error) {
     console.error('Error importing field data:', error);
@@ -83,7 +150,7 @@ const getProjectById = async (id: string): Promise<Project | undefined> => {
   return projects.find(project => project.id === id);
 };
 
-// Utility function to parse CSV data
+// Utility function to parse CSV data (no longer used for direct import, but kept for other potential uses)
 export const parseCSVData = (csvText: string): Record<string, string>[] => {
   const lines = csvText.split('\n');
   if (lines.length < 2) {
@@ -110,7 +177,7 @@ export const parseCSVData = (csvText: string): Record<string, string>[] => {
   return result;
 };
 
-// Function to process field data CSV and extract relevant information
+// Function to process field data CSV and extract relevant information (no longer used for direct import)
 export const processFieldData = (csvData: Record<string, string>[]): {
   speciesCount: number;
   totalDataPoints: number;
@@ -134,7 +201,7 @@ export const processFieldData = (csvData: Record<string, string>[]): {
   };
 };
 
-// Function to read file content from public directory
+// Function to read file content from public directory (still useful for reading local CSVs before sending)
 export const readCSVFile = async (filePath: string): Promise<string> => {
   try {
     const response = await fetch(filePath);

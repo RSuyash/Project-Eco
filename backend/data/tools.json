@@ -1,0 +1,52 @@
+[
+    {
+        "id": "tool_1",
+        "name": "Plot Visualizer",
+        "category": "Visualization"
+    },
+    {
+        "id": "tool_2",
+        "name": "Species Analysis",
+        "category": "Analysis"
+    },
+    {
+        "id": "tool_3",
+        "name": "Canopy Analysis",
+        "category": "Analysis"
+    },
+    {
+        "id": "tool_4",
+        "name": "Data Visualization",
+        "category": "Visualization"
+    },
+    {
+        "id": "tool_5",
+        "name": "Species-Area Curve",
+        "category": "Analysis"
+    },
+    {
+        "id": "tool_6",
+        "name": "Botanical Survey",
+        "category": "Field Work"
+    },
+    {
+        "id": "tool_7",
+        "name": "Bird Monitoring",
+        "category": "Fauna"
+    },
+    {
+        "id": "tool_8",
+        "name": "Bat Survey",
+        "category": "Fauna"
+    },
+    {
+        "id": "tool_9",
+        "name": "Habitat Analysis",
+        "category": "Analysis"
+    },
+    {
+        "id": "tool_10",
+        "name": "Statistical Modeling",
+        "category": "Analysis"
+    }
+]

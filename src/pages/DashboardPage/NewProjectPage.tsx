@@ -141,7 +141,7 @@ const NewProjectPage = () => {
           
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <TextField
                   fullWidth
                   label="Project Name"
@@ -154,7 +154,7 @@ const NewProjectPage = () => {
                 />
               </Grid>
               
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <TextField
                   fullWidth
                   label="Project Description"
@@ -168,7 +168,7 @@ const NewProjectPage = () => {
                 />
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid xs={12} md={6}>
                 <FormControl fullWidth size="small" disabled={loading}>
                   <InputLabel>Project Type</InputLabel>
                   <Select
@@ -186,7 +186,7 @@ const NewProjectPage = () => {
                 </FormControl>
               </Grid>
               
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="h6" gutterBottom>
                     Tools
@@ -220,7 +220,7 @@ const NewProjectPage = () => {
                 </Box>
               </Grid>
               
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="h6" gutterBottom>
                     Data Sources
@@ -254,7 +254,7 @@ const NewProjectPage = () => {
                 </Box>
               </Grid>
               
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                   <Button 
                     variant="outlined" 
@@ -293,7 +293,7 @@ const NewProjectPage = () => {
             {availableTools.length > 0 ? (
               <Grid container spacing={1} sx={{ mt: 1 }}>
                 {availableTools.map((tool) => (
-                  <Grid item xs={6} key={tool.id}>
+                  <Grid xs={6} key={tool.id}>
                     <Button
                       fullWidth
                       variant={selectedTools.includes(tool.name) ? 'contained' : 'outlined'}
@@ -340,7 +340,7 @@ const NewProjectPage = () => {
             {availableDataSources.length > 0 ? (
               <Grid container spacing={1} sx={{ mt: 1 }}>
                 {availableDataSources.map((source) => (
-                  <Grid item xs={6} key={source.id}>
+                  <Grid xs={6} key={source.id}>
                     <Button
                       fullWidth
                       variant={selectedDataSources.includes(source.name) ? 'contained' : 'outlined'}

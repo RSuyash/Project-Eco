@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+pandas
+numpy
+matplotlib
+seaborn
+opencv-python
+pypandoc
+Pillow
+python-multipart
+typer
+python-json-logger

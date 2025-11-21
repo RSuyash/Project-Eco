@@ -325,13 +325,13 @@ function calculateStemsFromRow(row: WoodyVegetationRow): number | undefined {
  */
 function getQuadrantFromSubplot(subplotId: string): string {
   const subplotNum = parseInt(subplotId.replace('SP', ''));
-  if (subplotNum <= 2) {
-    return 'Q1';
-  } else {
-    return 'Q2';
+  switch (subplotNum) {
+    case 1: return 'Q1';
+    case 2: return 'Q2';
+    case 3: return 'Q3';
+    case 4: return 'Q4';
+    default: return 'Unknown'; // Handle unexpected subplot IDs
   }
-  // Note: The actual mapping might vary based on your specific methodology
-  // This is a simple example mapping
 }
 
 /**

@@ -1,0 +1,31 @@
+{
+  "name": "@ecodata/canopy-analysis",
+  "version": "1.0.0",
+  "description": "Canopy analysis component for ecological data processing",
+  "main": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "ecology",
+    "canopy",
+    "analysis",
+    "image-processing",
+    "vegetation"
+  ],
+  "author": "EcoData",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "@mui/material": "^6.2.0",
+    "@mui/icons-material": "^6.2.0",
+    "axios": "^1.6.0",
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0"
+  }
+}

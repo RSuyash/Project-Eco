@@ -1,0 +1,32 @@
+[
+    {
+        "id": "proj_1",
+        "name": "Default Vegetation Analysis",
+        "description": "Initial project for analyzing vegetation data from field surveys.",
+        "createdAt": "2023-01-01T00:00:00Z",
+        "updatedAt": "2023-01-01T00:00:00Z",
+        "status": "active",
+        "tools": [
+            "Plot Visualizer",
+            "Species Analysis",
+            "Canopy Analysis"
+        ],
+        "dataSources": [],
+        "progress": 10.0,
+        "totalDataPoints": 0,
+        "lastSynced": "2023-01-01T00:00:00Z"
+    },
+    {
+        "id": "project_1763322256683",
+        "name": "test",
+        "description": "",
+        "createdAt": "2025-11-16T19:44:16.683Z",
+        "updatedAt": "2025-11-16T19:44:16.683Z",
+        "status": "active",
+        "tools": [],
+        "dataSources": [],
+        "progress": 0.0,
+        "totalDataPoints": 0,
+        "lastSynced": "2025-11-16T19:44:16.683Z"
+    }
+]

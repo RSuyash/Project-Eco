@@ -399,7 +399,7 @@ const ProjectViewPage = () => {
     return (
       <Box>
         <Breadcrumb />
-        <Container maxWidth="xl" sx={{ mt: 4, pb: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <Container maxWidth={activeTab === 1 ? false : "xl"} sx={{ mt: 4, pb: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh', width: activeTab === 1 ? '100%' : 'auto' }}>
           <Box sx={{ width: '100%', maxWidth: 400 }}>
             <Typography variant="h6" align="center" gutterBottom>
               Loading project...
@@ -415,12 +415,12 @@ const ProjectViewPage = () => {
     return (
       <Box>
         <Breadcrumb />
-        <Container maxWidth="xl" sx={{ mt: 4, pb: 4 }}>
+        <Container maxWidth={activeTab === 1 ? false : "xl"} sx={{ mt: 4, pb: 4, width: activeTab === 1 ? '100%' : 'auto' }}>
           <Alert severity="error">
             {error}
           </Alert>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={() => navigate('/dashboard/projects')}
             sx={{ mt: 2 }}
           >
@@ -435,12 +435,12 @@ const ProjectViewPage = () => {
     return (
       <Box>
         <Breadcrumb />
-        <Container maxWidth="xl" sx={{ mt: 4, pb: 4 }}>
+        <Container maxWidth={activeTab === 1 ? false : "xl"} sx={{ mt: 4, pb: 4, width: activeTab === 1 ? '100%' : 'auto' }}>
           <Alert severity="error">
             Project not found
           </Alert>
-          <Button 
-            variant="contained" 
+          <Button
+            variant="contained"
             onClick={() => navigate('/dashboard/projects')}
             sx={{ mt: 2 }}
           >
@@ -461,7 +461,7 @@ const ProjectViewPage = () => {
           overflowY: 'auto'
         }}
       >
-        <Container maxWidth="xl" sx={{ mt: 4, pb: 4 }}>
+        <Container maxWidth={activeTab === 1 ? false : "xl"} sx={{ mt: 4, pb: 4, width: activeTab === 1 ? '100%' : 'auto' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Box>
               <Typography variant="h4" component="h1" gutterBottom>
@@ -707,11 +707,9 @@ const ProjectViewPage = () => {
             )}
 
             {activeTab === 1 && ( // Plot Visualizer tab
-              <Grid container spacing={2}>
-                <Grid xs={12}>
-                  <PlotMap />
-                </Grid>
-              </Grid>
+              <Box sx={{ width: '100%', px: 2 }}>
+                <PlotMap />
+              </Box>
             )}
 
             {activeTab === 2 && ( // Analysis Tools tab

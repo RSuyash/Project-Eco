@@ -14,315 +14,126 @@ interface Project {
   lastSynced?: string;
 }
 
-// Define the database structure
-const DB_NAME = 'EnvScienceDB';
-const DB_VERSION = 1;
-const PROJECTS_STORE = 'projects';
-const DATA_SOURCES_STORE = 'dataSources';
-const TOOLS_STORE = 'tools';
-
-// Define the database schema
-interface DatabaseSchema {
-  [PROJECTS_STORE]: Project;
-  [DATA_SOURCES_STORE]: { id: string; name: string; type: string };
-  [TOOLS_STORE]: { id: string; name: string; category: string };
+interface DataSource {
+  id: string;
+  name: string;
+  type: string;
 }
 
-let db: IDBDatabase | null = null;
-let dbReady: Promise<IDBDatabase>;
+interface Tool {
+  id: string;
+  name: string;
+  category: string;
+}
 
-// Initialize the database
-export const initDB = (): Promise<IDBDatabase> => {
-  dbReady = new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
+const API_BASE_URL = 'http://localhost:8000/api/v1';
 
-    request.onerror = () => {
-      console.error('Database failed to open');
-      reject(request.error);
-    };
-
-    request.onsuccess = () => {
-      db = request.result;
-      console.log('Database opened successfully');
-      initializeDefaultData();
-      resolve(db);
-    };
-
-    request.onupgradeneeded = (event) => {
-      const db = (event.target as IDBOpenDBRequest).result;
-
-      // Create projects store
-      if (!db.objectStoreNames.contains(PROJECTS_STORE)) {
-        const projectStore = db.createObjectStore(PROJECTS_STORE, { keyPath: 'id' });
-        projectStore.createIndex('name', 'name', { unique: false });
-        projectStore.createIndex('status', 'status', { unique: false });
-        projectStore.createIndex('createdAt', 'createdAt', { unique: false });
-      }
-
-      // Create data sources store
-      if (!db.objectStoreNames.contains(DATA_SOURCES_STORE)) {
-        const dataSourceStore = db.createObjectStore(DATA_SOURCES_STORE, { keyPath: 'id' });
-        dataSourceStore.createIndex('name', 'name', { unique: true });
-      }
-
-      // Create tools store
-      if (!db.objectStoreNames.contains(TOOLS_STORE)) {
-        const toolStore = db.createObjectStore(TOOLS_STORE, { keyPath: 'id' });
-        toolStore.createIndex('name', 'name', { unique: true });
-        toolStore.createIndex('category', 'category', { unique: false });
-      }
-    };
+// Helper function for API calls
+async function apiCall<T>(method: string, path: string, data?: any): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: data ? JSON.stringify(data) : undefined,
   });
-  return dbReady;
-};
 
-// Initialize default tools, data sources, and a default project
-const initializeDefaultData = async () => {
-  if (!db) return;
-
-  try {
-    // Add default tools if none exist
-    const tools = await getAllTools();
-    if (tools.length === 0) {
-      const defaultTools = [
-        { id: 'tool_1', name: 'Plot Visualizer', category: 'Visualization' },
-        { id: 'tool_2', name: 'Species Analysis', category: 'Analysis' },
-        { id: 'tool_3', name: 'Canopy Analysis', category: 'Analysis' },
-        { id: 'tool_4', name: 'Data Visualization', category: 'Visualization' },
-        { id: 'tool_5', name: 'Species-Area Curve', category: 'Analysis' },
-        { id: 'tool_6', name: 'Botanical Survey', category: 'Field Work' },
-        { id: 'tool_7', name: 'Bird Monitoring', category: 'Fauna' },
-        { id: 'tool_8', name: 'Bat Survey', category: 'Fauna' },
-        { id: 'tool_9', name: 'Habitat Analysis', category: 'Analysis' },
-        { id: 'tool_10', name: 'Statistical Modeling', category: 'Analysis' },
-      ];
-
-      const transaction = db.transaction([TOOLS_STORE], 'readwrite');
-      const objectStore = transaction.objectStore(TOOLS_STORE);
-
-      for (const tool of defaultTools) {
-        objectStore.add(tool);
-      }
-    }
-
-    // Add default data sources if none exist
-    const dataSources = await getAllDataSources();
-    if (dataSources.length === 0) {
-      const defaultDataSources = [
-        { id: 'ds_1', name: 'Field Data', type: 'CSV' },
-        { id: 'ds_2', name: 'Satellite Imagery', type: 'GeoTIFF' },
-        { id: 'ds_3', name: 'Canopy Images', type: 'JPEG' },
-        { id: 'ds_4', name: 'Soil Samples', type: 'JSON' },
-        { id: 'ds_5', name: 'Water Quality', type: 'CSV' },
-        { id: 'ds_6', name: 'Weather Data', type: 'JSON' },
-        { id: 'ds_7', name: 'Herb Floor Data', type: 'CSV' },
-        { id: 'ds_8', name: 'Woody Vegetation', type: 'CSV' },
-        { id: 'ds_9', name: 'Biodiversity Records', type: 'JSON' },
-      ];
-
-      const transaction = db.transaction([DATA_SOURCES_STORE], 'readwrite');
-      const objectStore = transaction.objectStore(DATA_SOURCES_STORE);
-
-      for (const dataSource of defaultDataSources) {
-        objectStore.add(dataSource);
-      }
-    }
-
-    // Add a default project if none exist
-    await initializeDefaultProject();
-  } catch (error) {
-    console.error('Error initializing default data:', error);
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.detail || response.statusText);
   }
-};
 
-// Initialize a default project if no projects exist
-const initializeDefaultProject = async () => {
-  const projects = await getAllProjects();
-  if (projects.length === 0) {
-    const defaultProject: Project = {
-      id: 'proj_1',
-      name: 'Default Vegetation Analysis',
-      description: 'Initial project for analyzing vegetation data from field surveys.',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      status: 'active',
-      tools: ['Plot Visualizer', 'Species Analysis', 'Canopy Analysis'],
-      dataSources: [],
-      progress: 10,
-      totalDataPoints: 0,
-      lastSynced: new Date().toISOString(),
-    };
-    await addProject(defaultProject);
+  if (response.status === 204) { // No Content for successful deletes
+    return undefined as T;
   }
-};
 
+  return response.json();
+}
 
-// Project operations
+// --- Project Operations ---
 export const getAllProjects = async (): Promise<Project[]> => {
-  await dbReady;
-  return new Promise((resolve, reject) => {
-    if (!db) {
-      reject(new Error('Database not initialized'));
-      return;
-    }
-
-    const transaction = db.transaction([PROJECTS_STORE], 'readonly');
-    const objectStore = transaction.objectStore(PROJECTS_STORE);
-    const request = objectStore.getAll();
-
-    request.onsuccess = () => {
-      resolve(request.result as Project[]);
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
-  });
+  return apiCall<Project[]>('GET', '/projects');
 };
 
 export const getProjectById = async (id: string): Promise<Project | undefined> => {
-  await dbReady;
-  return new Promise((resolve, reject) => {
-    if (!db) {
-      reject(new Error('Database not initialized'));
-      return;
+  try {
+    return await apiCall<Project>('GET', `/projects/${id}`);
+  } catch (error: any) {
+    if (error.message === 'Project not found') { // Specific error from backend for 404
+      return undefined;
     }
-
-    const transaction = db.transaction([PROJECTS_STORE], 'readonly');
-    const objectStore = transaction.objectStore(PROJECTS_STORE);
-    const request = objectStore.get(id);
-
-    request.onsuccess = () => {
-      resolve(request.result as Project | undefined);
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
-  });
+    throw error;
+  }
 };
 
 export const addProject = async (project: Project): Promise<Project> => {
-  await dbReady;
-  return new Promise((resolve, reject) => {
-    if (!db) {
-      reject(new Error('Database not initialized'));
-      return;
-    }
-
-    // Set default values if not provided
-    const newProject: Project = {
-      ...project,
-      progress: project.progress || 0,
-      totalDataPoints: project.totalDataPoints || 0,
-      lastSynced: project.lastSynced || new Date().toISOString()
-    };
-
-    const transaction = db.transaction([PROJECTS_STORE], 'readwrite');
-    const objectStore = transaction.objectStore(PROJECTS_STORE);
-    const request = objectStore.add(newProject);
-
-    request.onsuccess = () => {
-      resolve(newProject);
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
-  });
+  return apiCall<Project>('POST', '/projects', project);
 };
 
 export const updateProject = async (project: Project): Promise<Project> => {
-  await dbReady;
-  return new Promise((resolve, reject) => {
-    if (!db) {
-      reject(new Error('Database not initialized'));
-      return;
-    }
-
-    const transaction = db.transaction([PROJECTS_STORE], 'readwrite');
-    const objectStore = transaction.objectStore(PROJECTS_STORE);
-    const request = objectStore.put(project);
-
-    request.onsuccess = () => {
-      resolve(project);
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
-  });
+  return apiCall<Project>('PUT', `/projects/${project.id}`, project);
 };
 
 export const deleteProject = async (id: string): Promise<void> => {
-  await dbReady;
-  return new Promise((resolve, reject) => {
-    if (!db) {
-      reject(new Error('Database not initialized'));
-      return;
-    }
-
-    const transaction = db.transaction([PROJECTS_STORE], 'readwrite');
-    const objectStore = transaction.objectStore(PROJECTS_STORE);
-    const request = objectStore.delete(id);
-
-    request.onsuccess = () => {
-      resolve();
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
-  });
+  return apiCall<void>('DELETE', `/projects/${id}`);
 };
 
-// Data source operations
-export const getAllDataSources = async (): Promise<{ id: string; name: string; type: string }[]> => {
-  await dbReady;
-  return new Promise((resolve, reject) => {
-    if (!db) {
-      reject(new Error('Database not initialized'));
-      return;
-    }
-
-    const transaction = db.transaction([DATA_SOURCES_STORE], 'readonly');
-    const objectStore = transaction.objectStore(DATA_SOURCES_STORE);
-    const request = objectStore.getAll();
-
-    request.onsuccess = () => {
-      resolve(request.result);
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
-  });
+// --- Data Source Operations ---
+export const getAllDataSources = async (): Promise<DataSource[]> => {
+  return apiCall<DataSource[]>('GET', '/data-sources');
 };
 
-// Tool operations
-export const getAllTools = async (): Promise<{ id: string; name: string; category: string }[]> => {
-  await dbReady;
-  return new Promise((resolve, reject) => {
-    if (!db) {
-      reject(new Error('Database not initialized'));
-      return;
+export const getDataSourceById = async (id: string): Promise<DataSource | undefined> => {
+  try {
+    return await apiCall<DataSource>('GET', `/data-sources/${id}`);
+  } catch (error: any) {
+    if (error.message === 'Data Source not found') {
+      return undefined;
     }
-
-    const transaction = db.transaction([TOOLS_STORE], 'readonly');
-    const objectStore = transaction.objectStore(TOOLS_STORE);
-    const request = objectStore.getAll();
-
-    request.onsuccess = () => {
-      resolve(request.result);
-    };
-
-    request.onerror = () => {
-      reject(request.error);
-    };
-  });
+    throw error;
+  }
 };
 
-// Initialize the database when the module loads
-initDB()
-  .then(() => console.log('Database initialized successfully'))
-  .catch(error => console.error('Failed to initialize database:', error));
+export const addDataSource = async (dataSource: DataSource): Promise<DataSource> => {
+  return apiCall<DataSource>('POST', '/data-sources', dataSource);
+};
+
+export const updateDataSource = async (dataSource: DataSource): Promise<DataSource> => {
+  return apiCall<DataSource>('PUT', `/data-sources/${dataSource.id}`, dataSource);
+};
+
+export const deleteDataSource = async (id: string): Promise<void> => {
+  return apiCall<void>('DELETE', `/data-sources/${id}`);
+};
+
+// --- Tool Operations ---
+export const getAllTools = async (): Promise<Tool[]> => {
+  return apiCall<Tool[]>('GET', '/tools');
+};
+
+export const getToolById = async (id: string): Promise<Tool | undefined> => {
+  try {
+    return await apiCall<Tool>('GET', `/tools/${id}`);
+  } catch (error: any) {
+    if (error.message === 'Tool not found') {
+      return undefined;
+    }
+    throw error;
+  }
+};
+
+export const addTool = async (tool: Tool): Promise<Tool> => {
+  return apiCall<Tool>('POST', '/tools', tool);
+};
+
+export const updateTool = async (tool: Tool): Promise<Tool> => {
+  return apiCall<Tool>('PUT', `/tools/${tool.id}`, tool);
+};
+
+export const deleteTool = async (id: string): Promise<void> => {
+  return apiCall<void>('DELETE', `/tools/${id}`);
+};
+
+// No need for initDB or initializeDefaultData on the frontend anymore,
+// as the backend handles persistence and default data initialization.
+// The frontend will simply call the API endpoints to get/set data.

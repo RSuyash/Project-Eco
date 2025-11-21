@@ -1,0 +1,47 @@
+[
+    {
+        "id": "ds_1",
+        "name": "Field Data",
+        "type": "CSV"
+    },
+    {
+        "id": "ds_2",
+        "name": "Satellite Imagery",
+        "type": "GeoTIFF"
+    },
+    {
+        "id": "ds_3",
+        "name": "Canopy Images",
+        "type": "JPEG"
+    },
+    {
+        "id": "ds_4",
+        "name": "Soil Samples",
+        "type": "JSON"
+    },
+    {
+        "id": "ds_5",
+        "name": "Water Quality",
+        "type": "CSV"
+    },
+    {
+        "id": "ds_6",
+        "name": "Weather Data",
+        "type": "JSON"
+    },
+    {
+        "id": "ds_7",
+        "name": "Herb Floor Data",
+        "type": "CSV"
+    },
+    {
+        "id": "ds_8",
+        "name": "Woody Vegetation",
+        "type": "CSV"
+    },
+    {
+        "id": "ds_9",
+        "name": "Biodiversity Records",
+        "type": "JSON"
+    }
+]
