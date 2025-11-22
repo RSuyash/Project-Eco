@@ -128,5 +128,23 @@ def get_data_for_canopy_summary(plot_id: str):
     if df_canopy is None or 'plot_id' not in df_canopy.columns:
         return None
         
-    df_plot = df_canopy[df_canopy['plot_id'] == plot_id]
-    return df_plot if not df_plot.empty else None
+    # Map frontend plot_id to backend plot_id format if needed
+    # e.g., "Plot_1" -> "Plot-P01"
+    if '_' in plot_id and not plot_id.startswith("Plot-P"):
+        try:
+            plot_num = int(plot_id.split('_')[1])
+            backend_plot_id = f"Plot-P{plot_num:02d}"
+            logger.info(f"Mapped frontend plot_id '{plot_id}' to backend format '{backend_plot_id}'")
+        except (IndexError, ValueError):
+            backend_plot_id = plot_id # Fallback to original if parsing fails
+            logger.warning(f"Could not parse plot_id '{plot_id}'. Using it as is.")
+    else:
+        backend_plot_id = plot_id
+
+    df_plot = df_canopy[df_canopy['plot_id'] == backend_plot_id]
+    
+    if df_plot.empty:
+        logger.warning(f"No canopy data found for original plot_id '{plot_id}' (mapped to '{backend_plot_id}').")
+        return None
+        
+    return df_plot

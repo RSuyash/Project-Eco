@@ -114,6 +114,9 @@ const ImageUpload: React.FC = () => {
   const plotOptions = ['Plot-1', 'Plot-2', 'Plot-3', 'Plot-4', 'Plot-5'];
   const quadrantOptions = ['A', 'B', 'C', 'D', 'Q1', 'Q2', 'Q3', 'Q4'];
 
+  // Validate selectedPlotId is in the allowed options, otherwise default to first option
+  const sanitizedSelectedPlotId = plotOptions.includes(selectedPlotId) ? selectedPlotId : '';
+
   return (
     <Paper sx={{ p: 3, mb: 3 }}>
       <Typography variant="h6" gutterBottom>
@@ -173,7 +176,7 @@ const ImageUpload: React.FC = () => {
             <InputLabel id="plot-select-label">Plot ID</InputLabel>
             <Select
               labelId="plot-select-label"
-              value={selectedPlotId}
+              value={sanitizedSelectedPlotId}
               onChange={handlePlotIdChange}
               label="Plot ID"
             >

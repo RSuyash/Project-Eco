@@ -117,8 +117,10 @@ const AnalysisDashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    // Fetch results when component mounts
-    fetchCanopyResults();
+    // Only fetch results if selectedPlotId is valid
+    if (selectedPlotId) {
+      fetchCanopyResults();
+    }
   }, [selectedPlotId]);
 
   return (

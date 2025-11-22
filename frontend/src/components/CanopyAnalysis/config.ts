@@ -17,12 +17,12 @@ export const CANOPY_ANALYSIS_CONFIG = {
   // API endpoints
   ENDPOINTS: {
     ANALYZE_IMAGE: '/api/v2/canopy-analysis/image',
-    BATCH_ANALYSIS: '/api/run-step/analyze-canopy',
+    BATCH_ANALYSIS: '/api/v1/run-step/analyze-canopy',
     GET_RESULTS: (plotId: string) => `/api/v2/plot-data/canopy_summary/${plotId}`,
     UPLOAD_IMAGE: '/api/images/upload',
     RUN_FULL_PIPELINE: '/api/run-full-pipeline'
   } as const,
-  
+
   // Default timeout for API requests in milliseconds
   API_TIMEOUT_MS: 30000,
 } as const;

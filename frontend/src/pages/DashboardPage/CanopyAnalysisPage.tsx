@@ -134,8 +134,11 @@ const CanopyAnalysisPage = () => {
     setActiveTab(newValue);
   };
 
+  // Normalize the project ID to make sure it matches expected format
+  const normalizedProjectId = id ? (id.startsWith('proj_') ? id.replace('proj_', 'Plot-') : id) : '';
+
   return (
-    <CanopyAnalysisProvider projectId={id || ''}>
+    <CanopyAnalysisProvider projectId={normalizedProjectId}>
       <Box>
         <Breadcrumb />
         <Container maxWidth="xl" sx={{ mt: 4, pb: 4 }}>

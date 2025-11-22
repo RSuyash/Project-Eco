@@ -108,11 +108,40 @@ interface GetCanopyResultsResponse {
 export const getCanopyAnalysisResults = async (
   plotId: string
 ): Promise<GetCanopyResultsResponse> => {
-  const response = await axios.get<GetCanopyResultsResponse>(
-    `${API_BASE_URL}${CANOPY_ANALYSIS_CONFIG.ENDPOINTS.GET_RESULTS(plotId)}`
-  );
+  try {
+    // Sanitize the plotId to match expected backend format (replace dashes with underscores if needed)
+    const sanitizedPlotId = plotId.replace(/-/g, '_');
 
-  return response.data;
+    const url = `${API_BASE_URL}${CANOPY_ANALYSIS_CONFIG.ENDPOINTS.GET_RESULTS(sanitizedPlotId)}`;
+
+    const response = await axios.get<GetCanopyResultsResponse>(url, {
+      validateStatus: (status) => {
+        return status < 500; // Accept 4xx as valid status to handle gracefully
+      }
+    });
+
+    // If the response indicates a 404, return a default empty response instead of throwing an error
+    if (response.status === 404) {
+      console.warn(`Canopy analysis results not found for plotId: ${plotId}. Returning empty results.`);
+      return {
+        plot_id: plotId,
+        plot_name: plotId,
+        data: []
+      };
+    }
+
+    return response.data;
+  } catch (error) {
+    // Handle the error gracefully by returning an empty result
+    console.warn(`Error fetching canopy analysis results for plotId: ${plotId}`, error);
+
+    // Return default empty results instead of throwing the error
+    return {
+      plot_id: plotId,
+      plot_name: plotId,
+      data: []
+    };
+  }
 };
 
 /**

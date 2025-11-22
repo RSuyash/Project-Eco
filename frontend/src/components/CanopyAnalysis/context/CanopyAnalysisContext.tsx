@@ -121,13 +121,16 @@ interface CanopyAnalysisProviderProps {
   children: ReactNode;
 }
 
-export const CanopyAnalysisProvider: React.FC<CanopyAnalysisProviderProps> = ({ 
-  projectId, 
-  children 
+export const CanopyAnalysisProvider: React.FC<CanopyAnalysisProviderProps> = ({
+  projectId,
+  children
 }) => {
+  // Ensure the projectId format matches the expected format in the app (e.g., Plot-X format)
+  const normalizedProjectId = projectId.startsWith('proj_') ? projectId.replace('proj_', 'Plot-') : projectId;
+
   const [state, dispatch] = useReducer(canopyAnalysisReducer, {
     ...initialState,
-    selectedPlotId: projectId, // Use projectId as default plot ID
+    selectedPlotId: normalizedProjectId, // Use normalized projectId as default plot ID
   });
 
   const addAnalysisResult = (result: ImageAnalysis) => {
