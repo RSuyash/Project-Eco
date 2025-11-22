@@ -190,3 +190,26 @@ export const runFullPipeline = async (): Promise<any> => {
 
   return response.data;
 };
+
+// Interface for existing canopy images
+interface ExistingCanopyImage {
+  plot_id: string;
+  filename: string;
+  relative_path: string;
+  absolute_path: string;
+}
+
+/**
+ * Fetches existing canopy images from the project's data directory
+ * @returns Promise resolving to an array of existing canopy images
+ */
+export const getExistingCanopyImages = async (): Promise<ExistingCanopyImage[]> => {
+  const response = await axios.get<ExistingCanopyImage[]>(
+    `${API_BASE_URL}${CANOPY_ANALYSIS_CONFIG.ENDPOINTS.GET_EXISTING_IMAGES}`,
+    {
+      timeout: CANOPY_ANALYSIS_CONFIG.API_TIMEOUT_MS,
+    }
+  );
+
+  return response.data;
+};

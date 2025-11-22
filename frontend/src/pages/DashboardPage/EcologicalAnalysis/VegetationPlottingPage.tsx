@@ -40,13 +40,13 @@ const VegetationPlottingPage = () => {
     // FIX: Changed height from 100vh to 100% to fit within the dashboard container without double scrollbars
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 'calc(100vh - 120px)' }}>
       <Breadcrumb />
-      
+
       <Box sx={{ flexGrow: 1, display: 'flex', overflow: 'hidden', gap: 2 }}>
         {/* Left Panel (Controls) */}
         <Paper
           elevation={0}
           sx={{
-            width: { xs: '100%', sm: '320px' }, 
+            width: { xs: '100%', sm: '320px' },
             flexShrink: 0,
             display: 'flex',
             flexDirection: 'column',
@@ -70,30 +70,30 @@ const VegetationPlottingPage = () => {
               Data Source
             </Typography>
             <Paper variant="outlined" sx={{ p: 2, mb: 2, cursor: 'pointer', '&:hover': { borderColor: 'primary.main' } }}>
-               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                 <UploadFileIcon color="action" />
-                 <Box>
-                   <Typography variant="body2" fontWeight={600}>Upload CSV</Typography>
-                   <Typography variant="caption" color="text.secondary">Drag & drop file</Typography>
-                 </Box>
-               </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <UploadFileIcon color="action" />
+                <Box>
+                  <Typography variant="body2" fontWeight={600}>Upload CSV</Typography>
+                  <Typography variant="caption" color="text.secondary">Drag & drop file</Typography>
+                </Box>
+              </Box>
             </Paper>
           </Box>
 
           {/* Analysis Options */}
           <Box sx={{ mb: 4 }}>
-             <Typography variant="subtitle2" fontWeight={600} color="text.secondary" sx={{ mb: 1.5, textTransform: 'uppercase', letterSpacing: 1 }}>
+            <Typography variant="subtitle2" fontWeight={600} color="text.secondary" sx={{ mb: 1.5, textTransform: 'uppercase', letterSpacing: 1 }}>
               Parameters
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-               <Box sx={{ p: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-                  <Typography variant="caption" color="text.secondary" display="block">Plot Size</Typography>
-                  <Typography variant="body2" fontWeight={500}>10m x 10m</Typography>
-               </Box>
-               <Box sx={{ p: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
-                  <Typography variant="caption" color="text.secondary" display="block">Filter Species</Typography>
-                  <Typography variant="body2" fontWeight={500} color="text.disabled">All Species</Typography>
-               </Box>
+              <Box sx={{ p: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                <Typography variant="caption" color="text.secondary" display="block">Plot Size</Typography>
+                <Typography variant="body2" fontWeight={500}>10m x 10m</Typography>
+              </Box>
+              <Box sx={{ p: 1.5, border: '1px solid', borderColor: 'divider', borderRadius: 1 }}>
+                <Typography variant="caption" color="text.secondary" display="block">Filter Species</Typography>
+                <Typography variant="body2" fontWeight={500} color="text.disabled">All Species</Typography>
+              </Box>
             </Box>
           </Box>
         </Paper>
@@ -108,14 +108,14 @@ const VegetationPlottingPage = () => {
             position: 'relative'
           }}
         >
-          <Paper 
-            variant="outlined" 
-            sx={{ 
-              height: '100%', 
-              width: '100%', 
-              p: 0, 
+          <Paper
+            variant="outlined"
+            sx={{
+              height: '100%',
+              width: '100%',
+              p: 0,
               overflow: 'hidden',
-              display: 'flex', 
+              display: 'flex',
               flexDirection: 'column',
               borderRadius: 2
             }}
@@ -126,16 +126,26 @@ const VegetationPlottingPage = () => {
                 <Typography variant="subtitle1" fontWeight={700}>Visualization Canvas</Typography>
               </Box>
               <Box sx={{ display: 'flex', gap: 1 }}>
-                 <Chip label="Grid On" size="small" color="primary" variant="outlined" />
-                 <Chip label="Live Update" size="small" color="success" variant="dot" />
+                <Chip label="Grid On" size="small" color="primary" variant="outlined" />
+                <Chip label="Live Update" size="small" color="success" variant="dot" />
               </Box>
             </Box>
-            
+
             {/* Actual Visualizer Component */}
             <Box sx={{ flexGrow: 1, overflow: 'auto', p: 2, bgcolor: '#f5f5f5' }}>
-               <Box sx={{ height: '100%', minHeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <PlotVisualizer />
-               </Box>
+              <Box sx={{ height: '100%', minHeight: 500, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <PlotVisualizer
+                  subplots={[]}
+                  woodyGlyphs={[]}
+                  settings={{
+                    showGrid: true,
+                    showQuadrants: true,
+                    showLabels: true,
+                    showWoody: true,
+                    showHerb: true,
+                  }}
+                />
+              </Box>
             </Box>
           </Paper>
         </Box>

@@ -1,30 +1,4 @@
-// src/services/dbService.ts
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  status: 'active' | 'completed' | 'archived';
-  tools: string[];
-  dataSources: string[];
-  progress?: number;
-  totalDataPoints?: number;
-  lastSynced?: string;
-}
-
-interface DataSource {
-  id: string;
-  name: string;
-  type: string;
-}
-
-interface Tool {
-  id: string;
-  name: string;
-  category: string;
-}
+import { Project, DataSource, Tool } from '../types';
 
 const API_BASE_URL = 'http://localhost:8000/api/v1';
 

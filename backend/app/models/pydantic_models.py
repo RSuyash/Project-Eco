@@ -49,6 +49,13 @@ class FieldDataImportRequest(BaseModel):
     woody_data: List[WoodyVegetationData]
     herb_data: List[HerbFloorVegetationData]
 
+class ProjectCreate(BaseModel):
+    name: str
+    description: str
+    status: str = 'active'
+    tools: List[str] = []
+    dataSources: List[str] = []
+
 class Project(BaseModel):
     id: str
     name: str

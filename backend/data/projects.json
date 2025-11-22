@@ -28,5 +28,71 @@
         "progress": 0.0,
         "totalDataPoints": 0,
         "lastSynced": "2025-11-16T19:44:16.683Z"
+    },
+    {
+        "id": "project_1763803443782",
+        "name": "Test Project 2",
+        "description": "Description",
+        "createdAt": "2025-11-22T09:24:03.782714Z",
+        "updatedAt": "2025-11-22T09:25:29.633Z",
+        "status": "active",
+        "tools": [],
+        "dataSources": [],
+        "progress": 0.0,
+        "totalDataPoints": 0,
+        "lastSynced": "2025-11-22T09:24:03.782779Z"
+    },
+    {
+        "id": "project_1763803586244",
+        "name": "Test Project 2 Updated",
+        "description": "",
+        "createdAt": "2025-11-22T09:26:26.245012Z",
+        "updatedAt": "2025-11-22T09:26:26.245186Z",
+        "status": "active",
+        "tools": [],
+        "dataSources": [],
+        "progress": 0.0,
+        "totalDataPoints": 0,
+        "lastSynced": "2025-11-22T09:26:26.245212Z"
+    },
+    {
+        "id": "project_1763804134980",
+        "name": "Wizard Test Project",
+        "description": "Description",
+        "createdAt": "2025-11-22T09:35:34.984699Z",
+        "updatedAt": "2025-11-22T09:35:34.985174Z",
+        "status": "active",
+        "tools": [],
+        "dataSources": [],
+        "progress": 0.0,
+        "totalDataPoints": 0,
+        "lastSynced": "2025-11-22T09:35:34.985192Z"
+    },
+    {
+        "id": "project_1763805560665",
+        "name": "TESTV1",
+        "description": "",
+        "createdAt": "2025-11-22T09:59:20.668154Z",
+        "updatedAt": "2025-11-22T09:59:20.668624Z",
+        "status": "active",
+        "tools": [
+            "Plot Visualizer",
+            "Species Analysis",
+            "Canopy Analysis",
+            "Data Visualization",
+            "Species-Area Curve",
+            "Botanical Survey",
+            "Bird Monitoring",
+            "Bat Survey",
+            "Habitat Analysis",
+            "Statistical Modeling"
+        ],
+        "dataSources": [
+            "Woody Vegetation",
+            "Herb Floor Data"
+        ],
+        "progress": 0.0,
+        "totalDataPoints": 0,
+        "lastSynced": "2025-11-22T09:59:20.668641Z"
     }
 ]

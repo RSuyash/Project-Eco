@@ -1,135 +1,145 @@
-import { WoodyData, HerbData } from './types';
+import { WoodyData, HerbData, VisualTreeNode, VisualSubplotNode } from './types';
 
-// --- Types ---
+// --- Constants ---
+export const HERB_LEGEND_COLORS = new Map<string, string>([
+  ['Herb', '#a5d6a7'],      // Pastel Green
+  ['Grass', '#e6ee9c'],     // Lime
+  ['Litter', '#ffcc80'],    // Pale Orange
+  ['Bare Soil', '#bcaaa4'], // Brown
+  ['Rock', '#b0bec5'],      // Grey
+]);
 
-export interface PieSliceData {
-  label: string;
-  value: number;
-  color: string;
-  meta?: any; // For storing raw values like exact GBH
-}
-
-export interface SubplotProcessed {
-  id: string;
-  position: 'Q1_CORNER' | 'Q2_CORNER' | 'Q3_CORNER' | 'Q4_CORNER';
-  data: PieSliceData[];
-}
-
-export interface WoodyGlyphProcessed {
-  id: 'Q1' | 'Q2' | 'Q3' | 'Q4';
-  data: PieSliceData[];
-  totalValue: number;
-}
+export const WOODY_COLOR_PALETTE = [
+  '#2e7d32', '#00695c', '#1565c0', '#6a1b9a', '#c62828', 
+  '#ef6c00', '#f9a825', '#455a64', '#558b2f', '#0277bd'
+];
 
 export interface PlotVisualizationData {
-  woodyGlyphs: WoodyGlyphProcessed[];
-  subplots: SubplotProcessed[];
+  trees: VisualTreeNode[];
+  subplots: VisualSubplotNode[];
   woodyLegend: Map<string, string>;
   herbLegend: Map<string, string>;
 }
 
-// --- Constants ---
+// --- Physics Helper ---
+// Distributes trees naturally so they don't overlap or look like a grid
+export function distributeTreesInQuadrant(
+  trees: VisualTreeNode[], 
+  quadrant: string
+): VisualTreeNode[] {
+  // Define bounds (0-100 scale) with padding
+  const bounds = {
+    Q1: { xMin: 5, xMax: 45, yMin: 5, yMax: 45 },
+    Q2: { xMin: 55, xMax: 95, yMin: 5, yMax: 45 },
+    Q3: { xMin: 5, xMax: 45, yMin: 55, yMax: 95 },
+    Q4: { xMin: 55, xMax: 95, yMin: 55, yMax: 95 },
+  }[quadrant] || { xMin: 5, xMax: 95, yMin: 5, yMax: 95 };
 
-// Scientific color palette for vegetation (distinct but cohesive)
-const HERB_LEGEND_COLORS = new Map<string, string>([
-  ['Herb', '#81c784'],      // Light Green
-  ['Grass', '#cddc39'],     // Lime
-  ['Litter', '#ffb74d'],    // Orange/Brown
-  ['Bare Soil', '#a1887f'], // Brown
-  ['Rock', '#90a4ae'],      // Grey
-]);
+  // 1. Randomize initial positions within bounds
+  trees.forEach(tree => {
+    tree.x = bounds.xMin + Math.random() * (bounds.xMax - bounds.xMin);
+    tree.y = bounds.yMin + Math.random() * (bounds.yMax - bounds.yMin);
+  });
 
-// High-contrast palette for species differentiation
-const WOODY_COLOR_PALETTE = [
-  '#2e7d32', // Dark Green
-  '#00838f', // Cyan
-  '#1565c0', // Blue
-  '#6a1b9a', // Purple
-  '#ad1457', // Pink
-  '#c62828', // Red
-  '#ef6c00', // Orange
-  '#f9a825', // Yellow
-  '#455a64', // Blue Grey
-  '#558b2f', // Olive
-];
+  // 2. Force Relaxation (Prevent Overlaps)
+  const iterations = 15;
+  for (let i = 0; i < iterations; i++) {
+    for (let j = 0; j < trees.length; j++) {
+      for (let k = j + 1; k < trees.length; k++) {
+        const a = trees[j];
+        const b = trees[k];
+        
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        // Min distance based on radius (visual size)
+        const minDist = (a.radius + b.radius) * 1.1; 
 
-// --- Helpers ---
-
-function getWoodyColor(species: string, legendMap: Map<string, string>): string {
-  if (!legendMap.has(species)) {
-    const nextColor = WOODY_COLOR_PALETTE[legendMap.size % WOODY_COLOR_PALETTE.length];
-    legendMap.set(species, nextColor);
+        if (dist < minDist && dist > 0) {
+          const force = (minDist - dist) / 2;
+          const angle = Math.atan2(dy, dx);
+          
+          // Push apart
+          a.x -= Math.cos(angle) * force;
+          a.y -= Math.sin(angle) * force;
+          b.x += Math.cos(angle) * force;
+          b.y += Math.sin(angle) * force;
+        }
+      }
+      // Constrain to bounds
+      const t = trees[j];
+      t.x = Math.max(bounds.xMin, Math.min(bounds.xMax, t.x));
+      t.y = Math.max(bounds.yMin, Math.min(bounds.yMax, t.y));
+    }
   }
-  return legendMap.get(species)!;
+  return trees;
 }
 
 // --- Main Processor ---
-
 export const processPlotData = (
   woodyData: WoodyData[],
   herbData: HerbData[],
   plotId: string
 ): PlotVisualizationData => {
-  // 1. Filter Data for Current Plot
-  const plotHerbData = herbData.filter(item => item.Plot_ID === plotId);
-  const plotWoodyData = woodyData.filter(item => item.Plot_ID === plotId);
+  const plotHerb = herbData.filter(d => d.Plot_ID === plotId);
+  const plotWoody = woodyData.filter(d => d.Plot_ID === plotId);
 
-  // 2. Build Legends (Dynamically for Woody, Statically for Herb)
+  // Generate Legend
   const woodyLegend = new Map<string, string>();
-  
-  // Sort species alphabetically for consistent legend ordering
-  const uniqueSpecies = [...new Set(plotWoodyData.map(item => item.Species_Scientific))].sort();
-  uniqueSpecies.forEach(species => getWoodyColor(species, woodyLegend));
+  const uniqueSpecies = Array.from(new Set(plotWoody.map(d => d.Species_Scientific))).sort();
+  uniqueSpecies.forEach((s, i) => woodyLegend.set(s, WOODY_COLOR_PALETTE[i % WOODY_COLOR_PALETTE.length]));
 
-  // 3. Process Subplots (Corner Data)
-  const subplots: SubplotProcessed[] = (['SP1', 'SP2', 'SP3', 'SP4'] as const)
-    .map(subplotId => {
-      const dataForSubplot = plotHerbData.filter(item => item.Subplot_ID === subplotId);
-      
-      // Explicit mapping of Subplot ID to Visual Position
-      let position: 'Q1_CORNER' | 'Q2_CORNER' | 'Q3_CORNER' | 'Q4_CORNER' = 'Q1_CORNER';
-      if (subplotId === 'SP2') position = 'Q2_CORNER';
-      if (subplotId === 'SP3') position = 'Q3_CORNER';
-      if (subplotId === 'SP4') position = 'Q4_CORNER';
+  // Process Trees
+  let allVisualTrees: VisualTreeNode[] = [];
+  ['Q1', 'Q2', 'Q3', 'Q4'].forEach(q => {
+    const quadData = plotWoody.filter(d => d.Quad_ID === q);
+    
+    const nodes: VisualTreeNode[] = quadData.map(d => ({
+      id: d.Tree_ID,
+      species: d.Species_Scientific,
+      x: 0, // Placeholder
+      y: 0, // Placeholder
+      radius: Math.max(1.5, Math.log(d.Total_GBH_cm || 10) * 1.2), // Log scale for realistic size
+      height: d.Height_m || (Math.random() * 15 + 2),
+      color: woodyLegend.get(d.Species_Scientific) || '#ccc',
+      gbh: d.Total_GBH_cm,
+      quadrant: q
+    }));
 
-      return {
-        id: subplotId,
-        position,
-        data: dataForSubplot.map(item => ({
-          label: item.Layer_Type,
-          value: item['Count_or_Cover%'],
-          color: HERB_LEGEND_COLORS.get(item.Layer_Type) || '#e0e0e0',
-        })).sort((a, b) => b.value - a.value), // Sort by cover %
-      };
-    })
-    .filter(subplot => subplot.data.length > 0);
+    // Distribute naturally
+    const distributed = distributeTreesInQuadrant(nodes, q);
+    allVisualTrees = [...allVisualTrees, ...distributed];
+  });
 
-  // 4. Process Woody Glyphs (Trees/Shrubs inside quadrants)
-  const woodyGlyphs: WoodyGlyphProcessed[] = (['Q1', 'Q2', 'Q3', 'Q4'] as const)
-    .map(quadId => {
-      const dataForQuad = plotWoodyData.filter(item => item.Quad_ID === quadId);
+  // Process Subplots
+  const subplots: VisualSubplotNode[] = [];
+  ['SP1', 'SP2', 'SP3', 'SP4'].forEach((spId, i) => {
+    const spData = plotHerb.filter(d => d.Subplot_ID === spId);
+    // Fixed corners for subplots
+    const pos = [
+        { x: 2, y: 2 }, { x: 88, y: 2 }, { x: 2, y: 88 }, { x: 88, y: 88 }
+    ][i];
 
-      const individualTreeData = dataForQuad.map(item => ({
-        label: item.Species_Scientific,
-        value: item.Total_GBH_cm, // Used for radius sizing
-        color: getWoodyColor(item.Species_Scientific, woodyLegend),
-        meta: {
-          treeId: item.Tree_ID,
-          growthForm: item.Growth_Form
-        }
-      }));
-
-      return {
-        id: quadId,
-        data: individualTreeData,
-        totalValue: individualTreeData.reduce((sum, item) => sum + item.value, 0),
-      };
-    });
+    if (spData.length > 0 || true) { // Show placeholders even if empty
+        subplots.push({
+            id: spId,
+            x: pos.x,
+            y: pos.y,
+            width: 10,
+            height: 10,
+            data: spData.map(d => ({
+                label: d.Layer_Type,
+                value: d['Count_or_Cover%'],
+                color: HERB_LEGEND_COLORS.get(d.Layer_Type) || '#ccc'
+            }))
+        });
+    }
+  });
 
   return {
-    woodyGlyphs,
+    trees: allVisualTrees,
     subplots,
     woodyLegend,
-    herbLegend: HERB_LEGEND_COLORS,
+    herbLegend: HERB_LEGEND_COLORS
   };
 };

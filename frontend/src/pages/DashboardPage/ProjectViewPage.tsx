@@ -32,20 +32,19 @@ import {
   Breadcrumbs,
   Link
 } from '@mui/material';
+import { ArrowBack, Edit, Save, Delete, Add, Download, Share, FilterList, Map as MapIcon, BarChart, TableChart, Science, Forest, Landscape, Opacity, GridOn, Layers } from '@mui/icons-material';
+import { parseAndProcessPlotData } from '../../services/plotDataService';
+import { PlotData } from '../../components/PlotVisualizer/PlotExplorer';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 
 // Icons
 import SyncIcon from '@mui/icons-material/Sync';
-import EditIcon from '@mui/icons-material/Edit';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import ForestIcon from '@mui/icons-material/Forest';
-import GridOnIcon from '@mui/icons-material/GridOn';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import GroupIcon from '@mui/icons-material/Group';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import DescriptionIcon from '@mui/icons-material/Description';
-import MapIcon from '@mui/icons-material/Map';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import FolderIcon from '@mui/icons-material/Folder';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
@@ -60,28 +59,15 @@ import UploadIcon from '@mui/icons-material/Upload';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getProjectById, updateProject } from '../../services/dbService';
 import { readCSVFile, parseCSVData } from '../../services/dataImportService';
-import PlotMap from '../../components/PlotVisualizer/PlotMap';
+import PlotExplorer from '../../components/PlotVisualizer/PlotExplorer';
 
-// --- Types ---
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  status: 'active' | 'completed' | 'archived';
-  tools: string[];
-  dataSources: string[];
-  progress?: number;
-  totalDataPoints?: number;
-  lastSynced?: string;
-}
+import { Project } from '../../types';
 
 // --- Components ---
 
 const MetricCard = ({ title, value, subtitle, icon: Icon, color, onClick }: any) => {
   const theme = useTheme();
-  
+
   return (
     <Paper
       elevation={0}
@@ -103,10 +89,10 @@ const MetricCard = ({ title, value, subtitle, icon: Icon, color, onClick }: any)
       }}
     >
       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={2}>
-        <Box sx={{ 
-          p: 1.5, 
-          borderRadius: 2, 
-          bgcolor: alpha(color, 0.1), 
+        <Box sx={{
+          p: 1.5,
+          borderRadius: 2,
+          bgcolor: alpha(color, 0.1),
           color: color,
           display: 'flex'
         }}>
@@ -129,11 +115,11 @@ const MetricCard = ({ title, value, subtitle, icon: Icon, color, onClick }: any)
 };
 
 const ActionCard = ({ title, description, icon: Icon, actionLabel, onAction, color = 'primary' }: any) => (
-  <Card 
-    elevation={0} 
-    sx={{ 
-      height: '100%', 
-      display: 'flex', 
+  <Card
+    elevation={0}
+    sx={{
+      height: '100%',
+      display: 'flex',
       flexDirection: 'column',
       border: '1px solid',
       borderColor: 'divider',
@@ -155,9 +141,9 @@ const ActionCard = ({ title, description, icon: Icon, actionLabel, onAction, col
       </Typography>
     </CardContent>
     <Box sx={{ p: 2, pt: 0 }}>
-      <Button 
-        fullWidth 
-        variant="outlined" 
+      <Button
+        fullWidth
+        variant="outlined"
         color={color}
         onClick={onAction}
       >
@@ -168,13 +154,13 @@ const ActionCard = ({ title, description, icon: Icon, actionLabel, onAction, col
 );
 
 const FileListItem = ({ name, meta, type, onDownload }: any) => (
-  <Paper 
+  <Paper
     elevation={0}
-    sx={{ 
-      p: 2, 
-      mb: 2, 
-      border: '1px solid', 
-      borderColor: 'divider', 
+    sx={{
+      p: 2,
+      mb: 2,
+      border: '1px solid',
+      borderColor: 'divider',
       borderRadius: 2,
       display: 'flex',
       alignItems: 'center',
@@ -210,12 +196,12 @@ const ProjectViewPage = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const queryClient = useQueryClient();
-  
+
   // State
   const [activeTab, setActiveTab] = useState(0);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'synced'>('idle');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  
+
   // Edit Notes State
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [projectNotes, setProjectNotes] = useState('');
@@ -224,7 +210,7 @@ const ProjectViewPage = () => {
   // Mock Data for UI visualization
   const [speciesData, setSpeciesData] = useState<{ name: string; count: number; gbhSum: number }[]>([]);
   const [dominantSpecies, setDominantSpecies] = useState<{ name: string; percentage: number } | null>(null);
-  
+
   // Queries
   const { data: project, isLoading, error } = useQuery({
     queryKey: ['project', id],
@@ -232,21 +218,39 @@ const ProjectViewPage = () => {
     enabled: !!id,
   });
 
-  // Derived Ecological Metrics (Mock Logic)
-  const plotQuery = useQuery({
-    queryKey: ['plotData'],
+  // Derived Ecological Metrics (Real Data Placeholder)
+  // TODO: Fetch actual plot data associated with this project
+
+  // ...
+
+  const { data: plotData, isLoading: isLoadingPlot } = useQuery({
+    queryKey: ['plotData', id],
     queryFn: async () => {
       try {
-        const woodyCsvText = await readCSVFile('/vegetation-plotting/field-data/woody_vegetation.csv');
-        const woodyData = parseCSVData(woodyCsvText);
-        const plotIds = [...new Set(woodyData.map((row: any) => row.Plot_ID))];
-        return plotIds.map(plotId => ({ id: plotId }));
-      } catch (e) {
-        console.warn("Could not load plot data", e);
-        return [];
+        // Fetch CSVs from public folder
+        const [woodyRes, herbRes] = await Promise.all([
+          fetch('/vegetation-plotting/field-data/woody_vegetation.csv'),
+          fetch('/vegetation-plotting/field-data/herb_floor_vegetation.csv')
+        ]);
+
+        const woodyText = await woodyRes.text();
+        const herbText = await herbRes.text();
+
+        // Process data for the current plot (e.g., P01)
+        // We need to determine which plot ID to show. 
+        // For now, let's default to 'P01' or derive from project if possible.
+        // Since the project ID might not match CSV Plot IDs directly, 
+        // we might need a selector. For this demo, we'll use 'P01'.
+        const targetPlotId = 'P01';
+        const scaleFactor = 800 / 10; // 800px / 10m
+
+        return await parseAndProcessPlotData(woodyText, herbText, targetPlotId, scaleFactor);
+      } catch (error) {
+        console.error("Failed to load plot data:", error);
+        return { trees: [], subplots: [] };
       }
     },
-    staleTime: 1000 * 60 * 10,
+    enabled: !!id,
   });
 
   // Update local state when project loads
@@ -258,11 +262,11 @@ const ProjectViewPage = () => {
 
   // Mock calculation effect
   useEffect(() => {
-    if (plotQuery.data && plotQuery.data.length > 0) {
+    if (plotData && plotData.trees.length > 0) {
       setSpeciesData(new Array(12).fill(0).map((_, i) => ({ name: `Species ${i}`, count: 10, gbhSum: 100 })));
       setDominantSpecies({ name: 'Acacia sp.', percentage: 42.5 });
     }
-  }, [plotQuery.data]);
+  }, [plotData]);
 
   // Mutations
   const updateProjectMutation = useMutation({
@@ -276,7 +280,7 @@ const ProjectViewPage = () => {
 
   // Handlers
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => setActiveTab(newValue);
-  
+
   const handleSaveNotes = () => {
     if (!project) return;
     setSaveStatus('saving');
@@ -317,21 +321,21 @@ const ProjectViewPage = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default', pb: 8 }}>
-      
+
       {/* --- Hero Header --- */}
-      <Box sx={{ 
-        bgcolor: 'background.paper', 
-        borderBottom: '1px solid', 
+      <Box sx={{
+        bgcolor: 'background.paper',
+        borderBottom: '1px solid',
         borderColor: 'divider',
         pt: 2,
         pb: 0
       }}>
         <Container maxWidth="xl">
-          
+
           {/* Integrated Breadcrumbs */}
           <Box sx={{ mb: 2 }}>
-            <Breadcrumbs 
-              separator={<NavigateNextIcon fontSize="small" sx={{ color: 'text.disabled' }} />} 
+            <Breadcrumbs
+              separator={<NavigateNextIcon fontSize="small" sx={{ color: 'text.disabled' }} />}
               aria-label="breadcrumb"
             >
               <Link
@@ -366,14 +370,14 @@ const ProjectViewPage = () => {
                 <Typography variant="h3" fontWeight="bold" color="text.primary">
                   {project.name}
                 </Typography>
-                <Chip 
-                  label={project.status} 
-                  color={project.status === 'active' ? 'success' : 'default'} 
-                  size="small" 
-                  sx={{ textTransform: 'capitalize', fontWeight: 'bold' }} 
+                <Chip
+                  label={project.status}
+                  color={project.status === 'active' ? 'success' : 'default'}
+                  size="small"
+                  sx={{ textTransform: 'capitalize', fontWeight: 'bold' }}
                 />
               </Stack>
-              
+
               <Stack direction="row" spacing={3} alignItems="center" color="text.secondary">
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                   <AccessTimeIcon fontSize="small" />
@@ -387,17 +391,17 @@ const ProjectViewPage = () => {
             </Box>
 
             <Stack direction="row" spacing={2}>
-              <Button 
-                variant="outlined" 
+              <Button
+                variant="outlined"
                 startIcon={<SyncIcon className={syncStatus === 'syncing' ? 'spin' : ''} />}
                 onClick={handleSync}
                 disabled={syncStatus === 'syncing'}
               >
                 {syncStatus === 'synced' ? 'Synced' : 'Sync Data'}
               </Button>
-              <Button 
-                variant="contained" 
-                startIcon={<EditIcon />}
+              <Button
+                variant="contained"
+                startIcon={<Edit />}
                 onClick={() => setIsEditingNotes(true)}
               >
                 Edit Project
@@ -409,17 +413,17 @@ const ProjectViewPage = () => {
           </Box>
 
           {/* Navigation Tabs */}
-          <Tabs 
-            value={activeTab} 
+          <Tabs
+            value={activeTab}
             onChange={handleTabChange}
-            sx={{ 
-              '& .MuiTab-root': { 
-                textTransform: 'none', 
-                fontWeight: 600, 
+            sx={{
+              '& .MuiTab-root': {
+                textTransform: 'none',
+                fontWeight: 600,
                 fontSize: '1rem',
                 minHeight: 48,
                 px: 3
-              } 
+              }
             }}
           >
             <Tab label="Overview" icon={<DescriptionIcon fontSize="small" />} iconPosition="start" />
@@ -431,45 +435,45 @@ const ProjectViewPage = () => {
       </Box>
 
       <Container maxWidth="xl" sx={{ mt: 4 }}>
-        
+
         {/* --- TAB: OVERVIEW --- */}
         {activeTab === 0 && (
           <Fade in={true}>
             <Grid container spacing={3}>
               {/* Metrics Row */}
               <Grid item xs={12} sm={6} md={3}>
-                <MetricCard 
-                  title="Species Identified" 
-                  value={speciesData.length || 0} 
-                  icon={ForestIcon} 
+                <MetricCard
+                  title="Species Identified"
+                  value={speciesData.length || 0}
+                  icon={Forest}
                   color={theme.palette.success.main}
                   onClick={() => setActiveTab(3)}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <MetricCard 
-                  title="Total Plots" 
-                  value={plotQuery.data?.length || 0} 
-                  icon={GridOnIcon} 
+                <MetricCard
+                  title="Total Plots"
+                  value={plotData?.subplots?.length || 0}
+                  icon={GridOn}
                   color={theme.palette.info.main}
                   onClick={() => setActiveTab(1)}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <MetricCard 
-                  title="Dominant Species" 
+                <MetricCard
+                  title="Dominant Species"
                   value={dominantSpecies?.percentage ? `${dominantSpecies.percentage}%` : 'N/A'}
-                  subtitle={dominantSpecies?.name || 'No Data'} 
-                  icon={TrendingUpIcon} 
+                  subtitle={dominantSpecies?.name || 'No Data'}
+                  icon={TrendingUpIcon}
                   color={theme.palette.warning.main}
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={3}>
-                <MetricCard 
-                  title="Overall Progress" 
-                  value={`${project.progress || 0}%`} 
+                <MetricCard
+                  title="Overall Progress"
+                  value={`${project.progress || 0}%`}
                   subtitle={project.totalDataPoints ? `${project.totalDataPoints} data points` : 'Ready to start'}
-                  icon={AnalyticsIcon} 
+                  icon={AnalyticsIcon}
                   color={theme.palette.primary.main}
                 />
               </Grid>
@@ -481,19 +485,19 @@ const ProjectViewPage = () => {
                     <Typography variant="h6" fontWeight="bold">Project Notes</Typography>
                     {isEditingNotes && (
                       <Stack direction="row" spacing={1}>
-                         <Button size="small" onClick={() => setIsEditingNotes(false)}>Cancel</Button>
-                         <Button size="small" variant="contained" onClick={handleSaveNotes}>Save</Button>
+                        <Button size="small" onClick={() => setIsEditingNotes(false)}>Cancel</Button>
+                        <Button size="small" variant="contained" onClick={handleSaveNotes}>Save</Button>
                       </Stack>
                     )}
                   </Box>
-                  
+
                   {isEditingNotes ? (
                     <TextareaAutosize
                       minRows={8}
-                      style={{ 
-                        width: '100%', 
-                        padding: '12px', 
-                        fontSize: '1rem', 
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        fontSize: '1rem',
                         fontFamily: theme.typography.fontFamily,
                         borderColor: theme.palette.divider,
                         borderRadius: '8px',
@@ -503,11 +507,11 @@ const ProjectViewPage = () => {
                       onChange={(e) => setProjectNotes(e.target.value)}
                     />
                   ) : (
-                    <Box sx={{ 
-                      p: 2, 
-                      bgcolor: alpha(theme.palette.action.hover, 0.05), 
-                      borderRadius: 2, 
-                      minHeight: 200 
+                    <Box sx={{
+                      p: 2,
+                      bgcolor: alpha(theme.palette.action.hover, 0.05),
+                      borderRadius: 2,
+                      minHeight: 200
                     }}>
                       <Typography variant="body1" sx={{ whiteSpace: 'pre-line', color: projectNotes ? 'text.primary' : 'text.secondary' }}>
                         {projectNotes || "No notes added yet. Click 'Edit Project' to add a description or field notes."}
@@ -524,9 +528,9 @@ const ProjectViewPage = () => {
                     {['John Doe', 'Jane Smith', 'Robert Brown'].map((name, i) => (
                       <ListItem key={i} sx={{ px: 0 }}>
                         <Avatar sx={{ mr: 2, bgcolor: theme.palette.primary.light }}>{name[0]}</Avatar>
-                        <ListItemText 
-                          primary={name} 
-                          secondary={i === 0 ? 'Lead Researcher' : 'Field Technician'} 
+                        <ListItemText
+                          primary={name}
+                          secondary={i === 0 ? 'Lead Researcher' : 'Field Technician'}
                           primaryTypographyProps={{ fontWeight: 500 }}
                         />
                       </ListItem>
@@ -555,7 +559,13 @@ const ProjectViewPage = () => {
         {activeTab === 1 && (
           <Fade in={true}>
             <Paper sx={{ height: 'calc(100vh - 250px)', overflow: 'hidden', borderRadius: 3, border: '1px solid', borderColor: 'divider' }} elevation={0}>
-              <PlotMap selectedPlotId={null} />
+              {isLoadingPlot ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                  <CircularProgress />
+                </Box>
+              ) : (
+                <PlotExplorer data={plotData || { trees: [], subplots: [] }} plotId={id || ''} />
+              )}
             </Paper>
           </Fade>
         )}
@@ -565,42 +575,42 @@ const ProjectViewPage = () => {
           <Fade in={true}>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6} md={4}>
-                <ActionCard 
-                  title="Canopy Analysis" 
+                <ActionCard
+                  title="Canopy Analysis"
                   description="Analyze canopy cover photos, calculate LAI and Gap Fraction."
-                  icon={ForestIcon}
+                  icon={Forest}
                   actionLabel="Open Tool"
                   onAction={() => navigate(`/dashboard/projects/${id}/canopy-analysis`)}
                   color="success"
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={4}>
-                <ActionCard 
-                  title="Species-Area Curve" 
+                <ActionCard
+                  title="Species-Area Curve"
                   description="Generate accumulation curves to estimate species richness."
                   icon={TrendingUpIcon}
                   actionLabel="View Curves"
-                  onAction={() => {}}
+                  onAction={() => { }}
                   color="primary"
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={4}>
-                <ActionCard 
-                  title="Biodiversity Indices" 
+                <ActionCard
+                  title="Biodiversity Indices"
                   description="Calculate Shannon, Simpson, and Evenness indices for your plots."
                   icon={AnalyticsIcon}
                   actionLabel="Calculate"
-                  onAction={() => {}}
+                  onAction={() => { }}
                   color="info"
                 />
               </Grid>
               <Grid item xs={12} sm={6} md={4}>
-                <ActionCard 
-                  title="Export Report" 
+                <ActionCard
+                  title="Export Report"
                   description="Generate a comprehensive PDF summary of your project findings."
                   icon={FileDownloadIcon}
                   actionLabel="Generate PDF"
-                  onAction={() => {}}
+                  onAction={() => { }}
                   color="secondary"
                 />
               </Grid>
@@ -618,24 +628,24 @@ const ProjectViewPage = () => {
                     <Typography variant="h6" fontWeight="bold">Project Files</Typography>
                     <Button startIcon={<UploadIcon />} variant="contained" size="small">Upload Data</Button>
                   </Box>
-                  
-                  <FileListItem 
-                    name="woody_vegetation.csv" 
-                    type="CSV" 
-                    meta="62 rows • 16 columns • Updated 2 days ago" 
-                    onDownload={() => {}} 
+
+                  <FileListItem
+                    name="woody_vegetation.csv"
+                    type="CSV"
+                    meta="62 rows • 16 columns • Updated 2 days ago"
+                    onDownload={() => { }}
                   />
-                  <FileListItem 
-                    name="herb_floor_vegetation.csv" 
-                    type="CSV" 
-                    meta="45 rows • 8 columns • Updated 2 days ago" 
-                    onDownload={() => {}} 
+                  <FileListItem
+                    name="herb_floor_vegetation.csv"
+                    type="CSV"
+                    meta="45 rows • 8 columns • Updated 2 days ago"
+                    onDownload={() => { }}
                   />
-                  <FileListItem 
-                    name="canopy_photos.zip" 
-                    type="ZIP" 
-                    meta="150 MB • 45 files • Updated 1 week ago" 
-                    onDownload={() => {}} 
+                  <FileListItem
+                    name="canopy_photos.zip"
+                    type="ZIP"
+                    meta="150 MB • 45 files • Updated 1 week ago"
+                    onDownload={() => { }}
                   />
                 </Paper>
               </Grid>

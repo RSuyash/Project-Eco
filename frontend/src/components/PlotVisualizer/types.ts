@@ -8,6 +8,7 @@ export interface WoodyData {
   Growth_Form: 'Tree' | 'Shrub' | 'Sapling' | 'Climber' | 'Ficus' | string;
   Tree_ID: string;
   Total_GBH_cm: number;
+  Height_m?: number;
 }
 
 export interface HerbData {
@@ -25,4 +26,29 @@ export interface PlotData {
   woodySpeciesCount: number;
   herbSpeciesCount: number;
   dominantWoodySpecies: string;
+}
+
+export type InteractionMode = 'view' | 'select' | 'edit';
+
+// --- Visual Nodes for Rendering ---
+
+export interface VisualTreeNode {
+  id: string;
+  species: string;
+  x: number; // 0-100% (Relative to plot container)
+  y: number; // 0-100%
+  radius: number; // % width of plot
+  height: number; // meters (for shadow calculation)
+  color: string;
+  gbh: number;
+  quadrant: string;
+}
+
+export interface VisualSubplotNode {
+  id: string;
+  x: number; // 0-100%
+  y: number; // 0-100%
+  width: number; // %
+  height: number; // %
+  data: { label: string; value: number; color: string }[];
 }

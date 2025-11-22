@@ -1,11 +1,11 @@
-import React from 'react';
-import { Box, Typography, Tooltip } from '@mui/material';
-import { SubplotProcessed, WoodyGlyphProcessed } from './PlotVisualizerService';
+import React, { useState, useRef } from 'react';
+import { Box, Typography, Paper, alpha, useTheme } from '@mui/material';
+import { VisualTreeNode, VisualSubplotNode, InteractionMode } from './types';
+import NavigationIcon from '@mui/icons-material/Navigation';
 
-// --- Interfaces ---
 interface PlotVisualizerProps {
-  subplots: SubplotProcessed[];
-  woodyGlyphs: WoodyGlyphProcessed[];
+  trees: VisualTreeNode[];
+  subplots: VisualSubplotNode[];
   settings: {
     showGrid: boolean;
     showQuadrants: boolean;
@@ -13,225 +13,229 @@ interface PlotVisualizerProps {
     showWoody: boolean;
     showHerb: boolean;
   };
+  interactionMode: InteractionMode;
+  highlightedSpecies: string | null;
+  selectedTreeIds: string[];
+  onTreeSelect: (id: string, multi: boolean) => void;
+  onTreeMove: (id: string, x: number, y: number) => void;
 }
 
-// --- Constants ---
-const QUADRANTS = [
-  { id: 'Q1', label: 'Q1', top: 0, left: 0 },
-  { id: 'Q2', label: 'Q2', top: 0, left: '50%' },
-  { id: 'Q3', label: 'Q3', top: '50%', left: 0 },
-  { id: 'Q4', label: 'Q4', top: '50%', left: '50%' },
-];
-
-const SUBPLOT_MAP: Record<string, React.CSSProperties> = {
-  'Q1_CORNER': { top: 0, left: 0 },
-  'Q2_CORNER': { top: 0, right: 0 },
-  'Q3_CORNER': { bottom: 0, left: 0 },
-  'Q4_CORNER': { bottom: 0, right: 0 },
-};
-
-// --- Sub-Components ---
-
-const WoodyLayer: React.FC<{ data: any[] }> = ({ data }) => {
-  if (!data || data.length === 0) return null;
-
-  // Data is scaled to GBH. In a real app, we might use d3-scale.
-  // Here we map GBH to a % width relative to the quadrant.
-  const maxVal = Math.max(...data.map(d => d.value));
-  
-  return (
-    <Box sx={{ position: 'absolute', inset: 0, zIndex: 5 }}>
-      {data.map((tree, i) => {
-        // Deterministic random positioning based on index to keep trees static but distributed
-        const top = 10 + ((i * 23) % 80); 
-        const left = 10 + ((i * 47) % 80);
-        
-        // Scale size: Min 4%, Max 15% of quadrant width
-        const size = 4 + ((tree.value / maxVal) * 11);
-
-        return (
-          <Tooltip 
-            key={i} 
-            title={`${tree.label} (GBH: ${tree.value}cm)`} 
-            arrow 
-            placement="top"
-          >
-            <Box
-              sx={{
-                position: 'absolute',
-                top: `${top}%`,
-                left: `${left}%`,
-                width: `${size}%`,
-                paddingBottom: `${size}%`, // Maintain aspect ratio of circle
-                bgcolor: tree.color,
-                borderRadius: '50%',
-                border: '2px solid rgba(255,255,255,0.8)',
-                transform: 'translate(-50%, -50%)',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.25)',
-                transition: 'all 0.2s ease',
-                cursor: 'pointer',
-                '&:hover': { 
-                  transform: 'translate(-50%, -50%) scale(1.4)', 
-                  zIndex: 20,
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.4)'
-                }
-              }}
-            />
-          </Tooltip>
-        );
-      })}
-    </Box>
-  );
-};
-
-const SubplotLayer: React.FC<{ data: any[] }> = ({ data }) => {
-  // Simplified representation: Main color is dominant cover
-  if (!data || data.length === 0) return null;
-  const dominant = data[0];
-
-  return (
-    <Tooltip 
-      title={
-        <Box>
-          <Typography variant="caption" fontWeight="bold">Subplot Data</Typography>
-          {data.map((d: any) => (
-            <Box key={d.label} display="flex" justifyContent="space-between" minWidth={100}>
-              <span>{d.label}:</span> <span>{d.value}%</span>
-            </Box>
-          ))}
-        </Box>
-      }
-    >
-      <Box
-        sx={{
-          width: '100%',
-          height: '100%',
-          bgcolor: dominant.color,
-          border: '2px solid rgba(255,255,255,0.9)',
-          boxShadow: 2,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          transition: 'transform 0.2s',
-          cursor: 'help',
-          '&:hover': { transform: 'scale(1.1)', zIndex: 5 }
-        }}
-      >
-        <Typography variant="caption" sx={{ fontSize: '0.6rem', fontWeight: 'bold', color: 'rgba(0,0,0,0.6)' }}>
-          1m²
-        </Typography>
-      </Box>
-    </Tooltip>
-  );
-};
-
-// --- Main Component ---
-
 const PlotVisualizer: React.FC<PlotVisualizerProps> = ({ 
+  trees, 
   subplots, 
-  woodyGlyphs, 
-  settings 
+  settings,
+  interactionMode,
+  highlightedSpecies,
+  selectedTreeIds,
+  onTreeSelect,
+  onTreeMove
 }) => {
-  
+  const theme = useTheme();
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<VisualTreeNode | null>(null);
+
+  // --- Interaction Handlers ---
+  const handleMouseDown = (e: React.MouseEvent, treeId: string) => {
+    e.stopPropagation();
+    if (interactionMode === 'edit') {
+      setDraggingId(treeId);
+    } else {
+      onTreeSelect(treeId, e.shiftKey || e.ctrlKey);
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (draggingId && svgRef.current) {
+      const rect = svgRef.current.getBoundingClientRect();
+      // Calculate new 0-100% position
+      const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+      const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+      onTreeMove(draggingId, x, y);
+    }
+  };
+
+  const uniqueSpeciesColors = Array.from(new Set(trees.map(t => t.color)));
+
   return (
-    <Box sx={{ 
-      width: '100%', 
-      height: '100%', 
-      bgcolor: '#f1f8e9', // Base Ecological Green
-      position: 'relative',
-      overflow: 'hidden',
-      // The outer border of the entire plot
-      border: '3px solid #33691e' 
-    }}>
-      
-      {/* 1. Grid Layer */}
-      {settings.showGrid && (
-        <Box sx={{ 
-          position: 'absolute', inset: 0, 
-          opacity: 0.3,
-          // Create a 10x10 grid (10% each)
-          backgroundImage: `
-            linear-gradient(to right, #33691e 1px, transparent 1px),
-            linear-gradient(to bottom, #33691e 1px, transparent 1px)
-          `,
-          backgroundSize: '10% 10%'
-        }} />
-      )}
+    <Box 
+      sx={{ 
+        width: '100%', 
+        height: '100%', 
+        position: 'relative', 
+        bgcolor: '#fcfcfc',
+        backgroundImage: 'radial-gradient(#e0e0e0 1px, transparent 1px)',
+        backgroundSize: '20px 20px',
+        borderRadius: 2,
+        overflow: 'hidden',
+        border: `1px solid ${theme.palette.divider}`,
+        boxShadow: 'inset 0 0 40px rgba(0,0,0,0.02)'
+      }}
+    >
+      <svg 
+        ref={svgRef}
+        width="100%" 
+        height="100%" 
+        viewBox="0 0 100 100" // Critical: Fits content to container
+        preserveAspectRatio="xMidYMid meet"
+        onMouseMove={handleMouseMove}
+        onMouseUp={() => setDraggingId(null)}
+        onMouseLeave={() => { setDraggingId(null); setHoveredNode(null); }}
+        style={{ display: 'block', cursor: interactionMode === 'edit' ? 'crosshair' : 'default' }}
+      >
+        <defs>
+          {/* 3D Dome Gradients for Trees */}
+          {uniqueSpeciesColors.map((color, i) => (
+            <radialGradient id={`grad-${color.replace('#', '')}`} key={i} cx="30%" cy="30%" r="70%">
+              <stop offset="0%" stopColor={alpha(color, 0.8)} />
+              <stop offset="100%" stopColor={color} />
+            </radialGradient>
+          ))}
 
-      {/* 2. Quadrant Dividers (Thicker Lines) */}
-      {settings.showQuadrants && (
-        <>
-          <Box sx={{ position: 'absolute', left: '50%', top: 0, bottom: 0, width: '2px', bgcolor: '#33691e', zIndex: 1 }} />
-          <Box sx={{ position: 'absolute', top: '50%', left: 0, right: 0, height: '2px', bgcolor: '#33691e', zIndex: 1 }} />
-        </>
-      )}
+          {/* Selection Glow */}
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+            <feMerge>
+              <feMergeNode in="coloredBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
 
-      {/* 3. Content Container */}
-      {QUADRANTS.map((quad) => {
-        const glyphData = woodyGlyphs.find(g => g.id === quad.id);
-        const quadSubplots = subplots.filter(s => SUBPLOT_MAP[s.position]?.toString().includes(quad.id));
-        
-        // Find subplot for this quadrant (assuming standard corners)
-        // Logic: Map the generic position ID to the current visual quadrant loop
-        const relevantSubplot = subplots.find(s => {
-           if (quad.id === 'Q1' && s.position === 'Q1_CORNER') return true;
-           if (quad.id === 'Q2' && s.position === 'Q2_CORNER') return true;
-           if (quad.id === 'Q3' && s.position === 'Q3_CORNER') return true;
-           if (quad.id === 'Q4' && s.position === 'Q4_CORNER') return true;
-           return false;
-        });
+        {/* --- Grid --- */}
+        {settings.showGrid && (
+          <g stroke={alpha(theme.palette.text.secondary, 0.15)} strokeWidth="0.1">
+            {Array.from({ length: 11 }).map((_, i) => (
+              <React.Fragment key={i}>
+                <line x1={i * 10} y1="0" x2={i * 10} y2="100" />
+                <line x1="0" y1={i * 10} x2="100" y2={i * 10} />
+              </React.Fragment>
+            ))}
+          </g>
+        )}
 
-        return (
-          <Box 
-            key={quad.id}
-            sx={{
-              position: 'absolute',
-              top: quad.top,
-              left: quad.left,
-              width: '50%',
-              height: '50%',
-              // border: settings.showQuadrants ? '1px dashed rgba(51, 105, 30, 0.3)' : 'none',
-              p: 0
-            }}
-          >
-            {/* Watermark */}
-            {settings.showLabels && (
-              <Typography sx={{
-                position: 'absolute',
-                top: '50%', left: '50%',
-                transform: 'translate(-50%, -50%)',
-                fontSize: 'clamp(2rem, 10cqw, 6rem)', // Responsive font size relative to container
-                fontWeight: 900,
-                color: '#33691e',
-                opacity: 0.1,
-                userSelect: 'none',
-                pointerEvents: 'none',
-                zIndex: 0
-              }}>
-                {quad.label}
-              </Typography>
-            )}
+        {/* --- Quadrants --- */}
+        {settings.showQuadrants && (
+          <g stroke={theme.palette.primary.main} strokeWidth="0.3" strokeDasharray="2,1" opacity="0.4">
+            <line x1="50" y1="0" x2="50" y2="100" />
+            <line x1="0" y1="50" x2="100" y2="50" />
+          </g>
+        )}
 
-            {/* Woody Layer */}
-            {settings.showWoody && glyphData && (
-              <WoodyLayer data={glyphData.data} />
-            )}
+        {/* --- Subplots (Fixed Size) --- */}
+        {settings.showHerb && subplots.map(sp => (
+          <g key={sp.id}>
+            <rect 
+              x={sp.x} y={sp.y} width={sp.width} height={sp.height} 
+              fill={alpha(theme.palette.secondary.main, 0.05)}
+              stroke={theme.palette.secondary.main}
+              strokeWidth="0.2"
+              strokeDasharray="1,1"
+            />
+            <text x={sp.x + 5} y={sp.y + 5} fontSize="2" textAnchor="middle" fill={theme.palette.secondary.main} opacity="0.7">
+              {sp.id}
+            </text>
+          </g>
+        ))}
 
-            {/* Herb Layer (Fixed Corner) */}
-            {settings.showHerb && relevantSubplot && (
-              <Box sx={{
-                position: 'absolute',
-                width: '20%', // Represents a 1x1m subplot in a 5x5m quadrant (1/5 = 0.2)
-                height: '20%',
-                zIndex: 10,
-                ...SUBPLOT_MAP[relevantSubplot.position]
-              }}>
-                <SubplotLayer data={relevantSubplot.data} />
-              </Box>
-            )}
+        {/* --- Trees --- */}
+        {settings.showWoody && trees.map((tree) => {
+          const isSelected = selectedTreeIds.includes(tree.id);
+          const isDimmed = highlightedSpecies && tree.species !== highlightedSpecies;
+          // Calculate shadow offset based on height
+          const shadowOff = tree.height * 0.1;
+
+          return (
+            <g 
+              key={tree.id}
+              onClick={(e) => handleMouseDown(e, tree.id)}
+              onMouseEnter={() => setHoveredNode(tree)}
+              style={{ 
+                opacity: isDimmed ? 0.1 : 1, 
+                transition: 'all 0.3s ease',
+                cursor: 'pointer'
+              }}
+            >
+              {/* Shadow */}
+              <circle 
+                cx={tree.x + shadowOff} 
+                cy={tree.y + shadowOff} 
+                r={tree.radius} 
+                fill="black" 
+                opacity="0.15"
+              />
+              {/* Tree Canopy */}
+              <circle
+                cx={tree.x}
+                cy={tree.y}
+                r={tree.radius}
+                fill={`url(#grad-${tree.color.replace('#', '')})`}
+                stroke={isSelected ? theme.palette.primary.main : 'rgba(0,0,0,0.1)'}
+                strokeWidth={isSelected ? 0.5 : 0.1}
+                filter={isSelected ? 'url(#glow)' : undefined}
+              />
+              {/* Stem */}
+              <circle cx={tree.x} cy={tree.y} r={0.3} fill="rgba(0,0,0,0.3)" />
+            </g>
+          );
+        })}
+
+        {/* --- Labels --- */}
+        {settings.showLabels && (
+          <g pointerEvents="none">
+            <text x="5" y="5" fontSize="3" fontWeight="bold" fill={theme.palette.text.secondary} opacity="0.5">Q1</text>
+            <text x="95" y="5" fontSize="3" fontWeight="bold" fill={theme.palette.text.secondary} opacity="0.5" textAnchor="end">Q2</text>
+            <text x="5" y="95" fontSize="3" fontWeight="bold" fill={theme.palette.text.secondary} opacity="0.5" dominantBaseline="text-after-edge">Q3</text>
+            <text x="95" y="95" fontSize="3" fontWeight="bold" fill={theme.palette.text.secondary} opacity="0.5" textAnchor="end" dominantBaseline="text-after-edge">Q4</text>
+          </g>
+        )}
+      </svg>
+
+      {/* --- Technical Overlay (Compass & Scale) --- */}
+      <Box sx={{ position: 'absolute', top: 16, right: 16, pointerEvents: 'none', opacity: 0.6 }}>
+        <NavigationIcon sx={{ transform: 'rotate(45deg)', color: 'text.secondary' }} />
+        <Typography variant="caption" sx={{ display: 'block', textAlign: 'center', fontWeight: 'bold', mt: -0.5 }}>N</Typography>
+      </Box>
+
+      <Box sx={{ position: 'absolute', bottom: 16, left: 16, pointerEvents: 'none' }}>
+        <Box sx={{ width: '100px', height: '2px', bgcolor: 'text.primary', mb: 0.5, position: 'relative' }}>
+            <Box sx={{ position: 'absolute', left: 0, bottom: 0, width: 1, height: 5, bgcolor: 'text.primary' }} />
+            <Box sx={{ position: 'absolute', right: 0, bottom: 0, width: 1, height: 5, bgcolor: 'text.primary' }} />
+        </Box>
+        <Typography variant="caption" sx={{ fontWeight: 'bold' }}>10m Scale</Typography>
+      </Box>
+
+      {/* --- Tooltip --- */}
+      {hoveredNode && (
+        <Paper
+          elevation={4}
+          sx={{
+            position: 'absolute',
+            left: `${hoveredNode.x}%`,
+            top: `${hoveredNode.y}%`,
+            transform: 'translate(-50%, -130%)',
+            p: 1.5,
+            zIndex: 20,
+            pointerEvents: 'none',
+            minWidth: 140,
+            bgcolor: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(4px)',
+            border: `2px solid ${hoveredNode.color}`
+          }}
+        >
+          <Typography variant="subtitle2" fontWeight="bold" color="primary.main">
+            {hoveredNode.species}
+          </Typography>
+          <Box sx={{ mt: 0.5, display: 'grid', gridTemplateColumns: 'auto auto', gap: '4px 12px' }}>
+            <Typography variant="caption" color="text.secondary">ID:</Typography>
+            <Typography variant="caption" fontWeight="bold">{hoveredNode.id}</Typography>
+            <Typography variant="caption" color="text.secondary">Height:</Typography>
+            <Typography variant="caption" fontWeight="bold">{hoveredNode.height.toFixed(1)}m</Typography>
+            <Typography variant="caption" color="text.secondary">GBH:</Typography>
+            <Typography variant="caption" fontWeight="bold">{hoveredNode.gbh}cm</Typography>
           </Box>
-        );
-      })}
+        </Paper>
+      )}
     </Box>
   );
 };

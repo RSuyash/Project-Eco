@@ -37,11 +37,11 @@ import NewProjectPage from './NewProjectPage';
 import CanopyAnalysisPage from './CanopyAnalysisPage';
 import PlotManagementPage from './PlotManagementPage';
 
-import { 
-  getAppBarStyles, 
-  getMenuButtonStyles, 
-  getMainBoxStyles, 
-  rootBoxStyle 
+import {
+  getAppBarStyles,
+  getMenuButtonStyles,
+  getMainBoxStyles,
+  rootBoxStyle
 } from './DashboardPage.styles';
 import { useAppTheme } from '../../contexts/ThemeContext';
 
@@ -58,13 +58,13 @@ const DashboardPage = () => {
   return (
     <Box sx={rootBoxStyle}>
       <CssBaseline />
-      
+
       {/* AppBar: Fixed at the top, zIndex higher than drawer */}
       <AppBar
         position="fixed"
         sx={{
           ...getAppBarStyles(sidebarOpen, theme),
-          zIndex: theme.zIndex.drawer + 1 
+          zIndex: theme.zIndex.drawer + 1
         }}
       >
         <Toolbar>
@@ -77,7 +77,7 @@ const DashboardPage = () => {
           >
             <MenuIcon />
           </IconButton>
-          
+
           {/* Logo Area */}
           <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
             <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 700, letterSpacing: '-0.5px' }}>
@@ -98,7 +98,7 @@ const DashboardPage = () => {
                 <SearchIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-            
+
             <Tooltip title="Toggle Theme">
               <IconButton onClick={toggleTheme} color="inherit" size="small">
                 {mode === 'dark' ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
@@ -118,15 +118,15 @@ const DashboardPage = () => {
                 <HelpOutlineIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-            
+
             <Box sx={{ ml: 1, pl: 1, borderLeft: `1px solid ${theme.palette.divider}` }}>
-              <Avatar 
-                sx={{ 
-                  width: 32, 
-                  height: 32, 
+              <Avatar
+                sx={{
+                  width: 32,
+                  height: 32,
                   bgcolor: 'primary.main',
                   fontSize: '0.875rem',
-                  cursor: 'pointer' 
+                  cursor: 'pointer'
                 }}
               >
                 JD
@@ -137,9 +137,9 @@ const DashboardPage = () => {
       </AppBar>
 
       {/* Sidebar: Sits in the flex flow on desktop */}
-      <Sidebar 
-        isOpen={sidebarOpen} 
-        onToggle={handleDrawerToggle} 
+      <Sidebar
+        isOpen={sidebarOpen}
+        onToggle={handleDrawerToggle}
       />
 
       {/* Main Content: Flex grows to fill remaining space */}
@@ -150,7 +150,7 @@ const DashboardPage = () => {
         <Routes>
           {/* Default Route */}
           <Route index element={<EcologicalAnalysisPage />} />
-          
+
           {/* Analysis Routes */}
           <Route path="ecological-analysis">
             <Route index element={<EcologicalAnalysisPage />} />
@@ -163,16 +163,16 @@ const DashboardPage = () => {
             <Route path="landscape" element={<LandscapePage />} />
             <Route path="data-analysis" element={<DataAnalysisPage />} />
           </Route>
-          
+
           {/* Project Routes */}
           <Route path="projects">
             <Route index element={<ProjectsPage />} />
             <Route path="new" element={<NewProjectPage />} />
             <Route path=":id/view" element={<ProjectViewPage />} />
-            <Route path=":id/edit" element={<ProjectsPage />} />
+            <Route path=":id/edit" element={<NewProjectPage isEditing={true} />} />
             <Route path=":id/canopy-analysis" element={<CanopyAnalysisPage />} />
           </Route>
-          
+
           {/* Plot Routes */}
           <Route path="plots">
             <Route index element={<PlotManagementPage />} />

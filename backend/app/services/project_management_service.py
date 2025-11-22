@@ -2,7 +2,8 @@ import json
 import os
 from typing import List, Dict, Any, Optional # Import Optional
 from pathlib import Path
-from app.models.pydantic_models import Project, DataSource, Tool
+from datetime import datetime
+from app.models.pydantic_models import Project, ProjectCreate, DataSource, Tool
 from app.core.config import DATA_DIR
 import logging
 
@@ -46,14 +47,32 @@ def get_project_by_id(project_id: str) -> Optional[Project]:
     projects = get_all_projects()
     return next((p for p in projects if p.id == project_id), None)
 
-def create_project(project: Project) -> Project:
+import uuid
+from datetime import datetime
+
+# ... (imports)
+
+def create_project(project_create: ProjectCreate) -> Project:
     """Creates a new project."""
     projects = get_all_projects()
-    if any(p.id == project.id for p in projects):
-        raise ValueError(f"Project with ID {project.id} already exists.")
-    projects.append(project)
+    
+    new_project = Project(
+        id=f"project_{int(datetime.now().timestamp() * 1000)}", # Generate ID similar to frontend logic but server-side
+        name=project_create.name,
+        description=project_create.description,
+        createdAt=datetime.utcnow().isoformat() + "Z",
+        updatedAt=datetime.utcnow().isoformat() + "Z",
+        status=project_create.status,
+        tools=project_create.tools,
+        dataSources=project_create.dataSources,
+        progress=0,
+        totalDataPoints=0,
+        lastSynced=datetime.utcnow().isoformat() + "Z"
+    )
+    
+    projects.append(new_project)
     _write_json_file(PROJECTS_FILE, [p.dict() for p in projects])
-    return project
+    return new_project
 
 def update_project(project_id: str, updated_project: Project) -> Optional[Project]:
     """Updates an existing project."""

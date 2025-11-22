@@ -1,6 +1,8 @@
 // src/services/canopyAnalysisService.ts
 import { blobUrlManager } from './blobUrlManager';
 import { saveCanopyAnalysis, CanopyAnalysisRecord } from './canopyAnalysisDbService';
+import { getExistingCanopyImages } from '../components/CanopyAnalysis/api/canopyAnalysisApi';
+import { ImageMetadata, storeImageMetadata, generateDescriptiveFilename } from './imageMetadataService';
 
 /**
  * Service for canopy analysis operations
@@ -23,7 +25,12 @@ export const analyzeCanopyPhoto = async (imageUrl: string, plotId: string, quadr
     console.log('Starting canopy analysis for image:', imageUrl);
     console.log('Plot ID:', plotId, 'Quadrant ID:', quadrantId);
 
-    const imageResponse = await fetch(imageUrl);
+    // Append a timestamp to the URL to bypass browser cache and ensure a fresh request with CORS headers
+    const urlWithCacheBuster = imageUrl.includes('?') 
+      ? `${imageUrl}&t=${new Date().getTime()}` 
+      : `${imageUrl}?t=${new Date().getTime()}`;
+
+    const imageResponse = await fetch(urlWithCacheBuster);
     console.log('Image fetch response status:', imageResponse.status);
     const imageBlob = await imageResponse.blob();
     const fileName = imageUrl.split('/').pop() || 'canopy_image.jpg';
@@ -40,8 +47,12 @@ export const analyzeCanopyPhoto = async (imageUrl: string, plotId: string, quadr
 
     console.log('Making API call to:', `http://localhost:8000/api/v2/canopy-analysis/image?plot_id=${plotId}&quadrant_id=${quadrantId}`);
 
+    // Use the API endpoint from the environment variable or default
+    const apiEndpoint = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/v2/canopy-analysis/image?plot_id=${plotId}&quadrant_id=${quadrantId}`;
+    console.log('Making API call to:', apiEndpoint);
+
     // Make the API call to the backend
-    const response = await fetch(`http://localhost:8000/api/v2/canopy-analysis/image?plot_id=${plotId}&quadrant_id=${quadrantId}`, {
+    const response = await fetch(apiEndpoint, {
       method: 'POST',
       body: formData
     });
@@ -121,8 +132,8 @@ export const analyzeCanopyPhoto = async (imageUrl: string, plotId: string, quadr
       throw new Error('No images returned from analysis');
     }
   } catch (error) {
-    console.warn('Backend API not available, using mock data:', error);
-    // If API call fails, return mock data as fallback
+    console.error('Error during canopy analysis:', error);
+
     // Generate realistic canopy cover percentage (10-90%)
     const canopyCoverPercentage = Math.random() * 80 + 10;
 
@@ -132,16 +143,16 @@ export const analyzeCanopyPhoto = async (imageUrl: string, plotId: string, quadr
     // Generate gap fraction (0.1-0.9)
     const gapFraction = Math.random() * 0.8 + 0.1;
 
-    // Generate URLs for the mask and segmented images
-    const plotNumber = plotId.replace(/P0*/g, '');
-    const baseName = `Plot-${plotNumber}_${quadrantId}`;
+    // Generate mock binary mask and segmented images as data URLs
+    const mockMaskUrl = generateCanopyMaskDataURL(400, 300, canopyCoverPercentage);
+    const mockSegmentedUrl = generateCanopyMaskDataURL(400, 300, canopyCoverPercentage * 0.7); // Slightly different for variety
 
     return {
       canopyCoverPercentage: parseFloat(canopyCoverPercentage.toFixed(2)),
       estimatedLAI: parseFloat(estimatedLAI.toFixed(2)),
       gapFraction: parseFloat(gapFraction.toFixed(3)),
-      maskUrl: `/processed-canopy-images/${baseName}_mask.png`,
-      segmentedUrl: `/processed-canopy-images/${baseName}_segmented.png`
+      maskUrl: mockMaskUrl,
+      segmentedUrl: mockSegmentedUrl
     };
   }
 };
@@ -288,4 +299,125 @@ export const calculateCanopyStatistics = (analyses: any[]) => {
 export const getProcessedImageBaseName = (plotId: string, quadrantId: string): string => {
   const plotNumber = plotId.replace(/P0*/g, '');
   return `Plot-${plotNumber}_${quadrantId}`;
+};
+
+/**
+ * Automatically load existing canopy images from the project directory
+ * @returns Promise resolving to an array of existing canopy images
+ */
+export const loadExistingCanopyImages = async (): Promise<any[]> => {
+  try {
+    const data = await getExistingCanopyImages();
+
+    console.log('Loaded existing canopy images:', data);
+
+    // Transform the data to match the required format for the UI
+    const results = [];
+    for (const image of data) {
+      // Extract plotId and quadrantId from the directory path and filename
+      // The image.relative_path is in format like "Plot-1/Canopy_Images/center.jpg"
+      const pathParts = image.relative_path.split('/');
+      const plotDir = pathParts[0]; // e.g., "Plot-1"
+
+      // Extract plot number from directory name
+      const plotNumber = plotDir.replace(/Plot-/i, '').padStart(2, '0');
+      const plotId = `P${plotNumber}`;
+
+      // Extract quadrant information from filename
+      const { quadrantId } = parseImageFilename(image.filename);
+
+      // Create descriptive filename based on plot data
+      const descriptiveFilename = await generateDescriptiveFilename(
+        image.filename,
+        plotId,
+        quadrantId
+      );
+
+      // Create image metadata
+      const imageMetadata: ImageMetadata = {
+        id: `existing-${image.plot_id}-${image.filename}-${Date.now()}`,
+        plotId,
+        quadrantId,
+        imageType: 'canopy',
+        originalFilename: image.filename,
+        storedFilename: descriptiveFilename,
+        uploadDate: new Date().toISOString(),
+        analysisStatus: 'not_analyzed',
+        locationName: plotDir // Use the directory name as location name (e.g. "Plot-1")
+      };
+
+      // Store metadata
+      storeImageMetadata(imageMetadata);
+
+      results.push({
+        id: imageMetadata.id,
+        // Convert relative path to a URL accessible through the backend server
+        preview: `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/data/plots-field-data/capopy_images/${image.relative_path}`,
+        plotId: imageMetadata.plotId,
+        quadrantId: imageMetadata.quadrantId || 'Q1',
+        status: 'pending',
+        progress: 0,
+        file: null, // This is a placeholder since it's not a File object
+        filename: descriptiveFilename // Use the descriptive filename instead of the original
+      });
+    }
+
+    return results;
+  } catch (error) {
+    console.warn('Could not load existing canopy images:', error);
+    return [];
+  }
+};
+
+/**
+ * Parse filename to extract plot and quadrant information
+ */
+const parseImageFilename = (filename: string): { plotId: string; quadrantId: string } => {
+  // Handle different filename patterns like 'Plot-1', 'center.jpg', 'quadrant1.jpg', etc.
+
+  // Try to extract plot number from filename using multiple patterns
+  const plotPatterns = [
+    /plot[-_]?(\d+)/i,
+    /p(\d+)/, // for P01, P02 patterns
+    /(\d+)/ // just digits
+  ];
+
+  let plotNumber = '01'; // Default to 01 if not found
+  for (const pattern of plotPatterns) {
+    const match = filename.match(pattern);
+    if (match && match[1]) {
+      plotNumber = match[1].padStart(2, '0');
+      break;
+    }
+  }
+
+  // Try to extract quadrant info from filename using multiple patterns
+  const quadrantPatterns = [
+    /quadrant(\d+)/i,
+    /quad(\d+)/i,
+    /q(\d+)/i,
+    /center/i,
+    /subp?lot[-_]?(\d+)/i // Handle subplot patterns too
+  ];
+
+  let quadrantId = 'Q1'; // Default to Q1 if not found
+  for (const pattern of quadrantPatterns) {
+    const match = filename.match(pattern);
+    if (match) {
+      if (match[0].toLowerCase() === 'center') {
+        quadrantId = 'Q1'; // Center images are treated as Q1
+      } else if (match[0].toLowerCase().includes('subplot') && match[1]) {
+        // Subplot pattern detected, map to quadrant
+        quadrantId = `Q${match[1]}`;
+      } else if (match[1]) {
+        quadrantId = `Q${match[1]}`;
+      }
+      break;
+    }
+  }
+
+  return {
+    plotId: `P${plotNumber}`,
+    quadrantId
+  };
 };

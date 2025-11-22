@@ -1,116 +1,263 @@
-import { Box, Typography, Grid, Paper, Container } from '@mui/material';
-import { Link as RouterLink } from 'react-router-dom';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import AutoGraphIcon from '@mui/icons-material/AutoGraph';
-import InsightsIcon from '@mui/icons-material/Insights';
-import FunctionsIcon from '@mui/icons-material/Functions'; // Example icon for a tool
-import ModelTrainingIcon from '@mui/icons-material/ModelTraining'; // Example icon for a tool
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Typography,
+  Grid,
+  Paper,
+  Container,
+  Tab,
+  Tabs,
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent
+} from '@mui/material';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from 'recharts';
 import Breadcrumb from '../../../components/Breadcrumb';
+import {
+  getSpeciesRichness,
+  getDiversityIndices,
+  getDominanceMetrics,
+  getStructuralMetrics,
+  SpeciesRichnessData,
+  DiversityData,
+  DominanceData,
+  StructuralData
+} from '../../../services/analysisService';
 
-// Define the data analysis tools
-const dataAnalysisTools = [
-  {
-    name: 'Statistical Analysis',
-    icon: BarChartIcon,
-    path: '/dashboard/ecological-analysis/statistical-analysis',
-  },
-  {
-    name: 'Ecological Modeling',
-    icon: AutoGraphIcon,
-    path: '/dashboard/ecological-analysis/modeling',
-  },
-  {
-    name: 'Data Reporting',
-    icon: InsightsIcon,
-    path: '/dashboard/ecological-analysis/reporting',
-  },
-  {
-    name: 'Diversity Indices',
-    icon: FunctionsIcon,
-    path: '/dashboard/ecological-analysis/data-analysis',
-  },
-  {
-    name: 'Statistical Modeling',
-    icon: ModelTrainingIcon,
-    path: '/dashboard/ecological-analysis/data-analysis',
-  },
-];
+// --- Components ---
 
-// Re-using the ToolCard component structure
-const ToolCard = ({ name, icon: Icon, path }: { name: string; icon: React.ElementType; path: string }) => (
-  <Grid item xs={12} sm={6} md={4} lg={3}>
-    <RouterLink to={path} style={{ textDecoration: 'none', width: '100%' }}>
-      <Paper
-        sx={{
-          p: 2.5,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: 140,
-          transition: 'all 0.2s ease-in-out',
-          '&:hover': {
-            transform: 'translateY(-4px)',
-            boxShadow: 6,
-            cursor: 'pointer',
-            '& .tool-icon': {
-              color: 'primary.main',
-            },
-          },
-        }}
-      >
-        <Icon className="tool-icon" sx={{ fontSize: 40, mb: 1.5, color: 'text.secondary', transition: 'color 0.2s' }} />
-        <Typography variant="subtitle1" align="center" sx={{ fontWeight: 500, color: 'text.primary' }}>
-          {name}
-        </Typography>
-      </Paper>
-    </RouterLink>
-  </Grid>
-);
+const DiversityPanel = ({ plotId }: { plotId: string }) => {
+  const [richness, setRichness] = useState<SpeciesRichnessData | null>(null);
+  const [diversity, setDiversity] = useState<DiversityData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [rData, dData] = await Promise.all([
+          getSpeciesRichness(plotId),
+          getDiversityIndices(plotId)
+        ]);
+        setRichness(rData);
+        setDiversity(dData);
+      } catch (error) {
+        console.error("Failed to fetch diversity data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [plotId]);
+
+  if (loading) return <CircularProgress />;
+
+  return (
+    <Grid container spacing={3}>
+      <Grid size={{ xs: 12, md: 4 }}>
+        <Paper sx={{ p: 3, textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Typography variant="h6" color="text.secondary">Species Richness</Typography>
+          <Typography variant="h2" color="primary">{richness?.total_richness || 0}</Typography>
+          <Typography variant="body2">Total unique species identified</Typography>
+        </Paper>
+      </Grid>
+      <Grid size={{ xs: 12, md: 4 }}>
+        <Paper sx={{ p: 3, textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Typography variant="h6" color="text.secondary">Shannon Index (H')</Typography>
+          <Typography variant="h2" color="secondary">{diversity?.shannon_index || 0}</Typography>
+          <Typography variant="body2">Measure of diversity (higher is more diverse)</Typography>
+        </Paper>
+      </Grid>
+      <Grid size={{ xs: 12, md: 4 }}>
+        <Paper sx={{ p: 3, textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <Typography variant="h6" color="text.secondary">Simpson Index (1-D)</Typography>
+          <Typography variant="h2" color="success.main">{diversity?.simpson_index || 0}</Typography>
+          <Typography variant="body2">Probability that two individuals are different species</Typography>
+        </Paper>
+      </Grid>
+    </Grid>
+  );
+};
+
+const DominancePanel = ({ plotId }: { plotId: string }) => {
+  const [data, setData] = useState<DominanceData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const result = await getDominanceMetrics(plotId);
+        setData(result);
+      } catch (error) {
+        console.error("Failed to fetch dominance data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [plotId]);
+
+  if (loading) return <CircularProgress />;
+
+  const top10 = data.slice(0, 10);
+
+  return (
+    <Paper sx={{ p: 3, height: 500, display: 'flex', flexDirection: 'column' }}>
+      <Typography variant="h6" gutterBottom>Top 10 Dominant Species</Typography>
+      <Box sx={{ flexGrow: 1, width: '100%', minHeight: 0 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            layout="vertical"
+            data={top10}
+            margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis type="number" />
+            <YAxis type="category" dataKey="Species" width={150} />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="relative_abundance" name="Relative Abundance (%)" fill="#8884d8" />
+          </BarChart>
+        </ResponsiveContainer>
+      </Box>
+    </Paper>
+  );
+};
+
+const StructurePanel = ({ plotId }: { plotId: string }) => {
+  const [data, setData] = useState<StructuralData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const result = await getStructuralMetrics(plotId);
+        setData(result);
+      } catch (error) {
+        console.error("Failed to fetch structural data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [plotId]);
+
+  if (loading) return <CircularProgress />;
+
+  return (
+    <Grid container spacing={3}>
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Paper sx={{ p: 3, height: 400, display: 'flex', flexDirection: 'column' }}>
+          <Typography variant="h6" gutterBottom>Height Distribution</Typography>
+          <Box sx={{ flexGrow: 1, width: '100%', minHeight: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data?.height_distribution}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="range" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#82ca9d" name="Count" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Box>
+        </Paper>
+      </Grid>
+      <Grid size={{ xs: 12, md: 6 }}>
+        <Paper sx={{ p: 3, height: 400, display: 'flex', flexDirection: 'column' }}>
+          <Typography variant="h6" gutterBottom>DBH Distribution</Typography>
+          <Box sx={{ flexGrow: 1, width: '100%', minHeight: 0 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data?.dbh_distribution}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="range" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#ffc658" name="Count" />
+              </BarChart>
+            </ResponsiveContainer>
+          </Box>
+        </Paper>
+      </Grid>
+    </Grid>
+  );
+};
+
+// --- Main Page ---
 
 const DataAnalysisPage = () => {
-  const CategoryIcon = BarChartIcon; // Main icon for Data Analysis
+  const [tabValue, setTabValue] = useState(0);
+  const [selectedPlot, setSelectedPlot] = useState('P01'); // Default to P01
+
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
+  const handlePlotChange = (event: SelectChangeEvent) => {
+    setSelectedPlot(event.target.value as string);
+  };
+
+  // Generate plot options (P01 to P09)
+  const plotOptions = Array.from({ length: 9 }, (_, i) => `P0${i + 1}`);
 
   return (
     <Box>
       <Breadcrumb />
       <Container maxWidth="xl" sx={{ mt: 4, pb: 4 }}>
-        <Box
-          sx={{
-            mb: 6,
-            p: 3,
-            backgroundColor: 'background.paper',
-            borderRadius: '4px',
-            boxShadow: 1,
-          }}
-        >
-          {/* Section Header */}
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              p: 2,
-              borderLeft: (theme) => `5px solid ${theme.palette.primary.main}`,
-              mb: 3,
-              pl: 2,
-              backgroundColor: (theme) =>
-                theme.palette.mode === 'dark' ? '#333842' : '#f0f0f0',
-              borderRadius: '4px',
-              boxShadow: 1,
-            }}
-          >
-            <CategoryIcon sx={{ fontSize: 28, color: 'primary.main', mr: 2 }} />
-            <Typography variant="h5" sx={{ fontWeight: 600, color: 'text.primary' }}>
-              Data Analysis Tools
-            </Typography>
-          </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Ecological Data Analysis
+          </Typography>
 
-          {/* Grid of Data Analysis Tools */}
-          <Grid container spacing={3} justifyContent="flex-start">
-            {dataAnalysisTools.map((tool) => (
-              <ToolCard key={tool.name} {...tool} />
-            ))}
-          </Grid>
+          <FormControl sx={{ minWidth: 120 }}>
+            <InputLabel id="plot-select-label">Select Plot</InputLabel>
+            <Select
+              labelId="plot-select-label"
+              value={selectedPlot}
+              label="Select Plot"
+              onChange={handlePlotChange}
+            >
+              {plotOptions.map((plot) => (
+                <MenuItem key={plot} value={plot}>{plot}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+
+        <Paper sx={{ width: '100%', mb: 2 }}>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            indicatorColor="primary"
+            textColor="primary"
+            centered
+          >
+            <Tab label="Diversity Indices" />
+            <Tab label="Species Dominance" />
+            <Tab label="Structural Analysis" />
+          </Tabs>
+        </Paper>
+
+        <Box sx={{ mt: 2 }}>
+          {tabValue === 0 && <DiversityPanel plotId={selectedPlot} />}
+          {tabValue === 1 && <DominancePanel plotId={selectedPlot} />}
+          {tabValue === 2 && <StructurePanel plotId={selectedPlot} />}
         </Box>
       </Container>
     </Box>

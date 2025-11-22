@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from typing import List
-from app.models.pydantic_models import Project, DataSource, Tool
+from app.models.pydantic_models import Project, ProjectCreate, DataSource, Tool
 from app.services import project_management_service
 import logging
 
@@ -22,7 +22,7 @@ async def get_project(project_id: str):
     return project
 
 @router.post("/projects", response_model=Project, status_code=status.HTTP_201_CREATED)
-async def create_project(project: Project):
+async def create_project(project: ProjectCreate):
     """Create a new project."""
     try:
         return project_management_service.create_project(project)
