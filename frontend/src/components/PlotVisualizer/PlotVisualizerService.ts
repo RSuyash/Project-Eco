@@ -2,15 +2,15 @@ import { WoodyData, HerbData, VisualTreeNode, VisualSubplotNode } from './types'
 
 // --- Constants ---
 export const HERB_LEGEND_COLORS = new Map<string, string>([
-  ['Herb', '#a5d6a7'],      // Pastel Green
-  ['Grass', '#e6ee9c'],     // Lime
-  ['Litter', '#ffcc80'],    // Pale Orange
-  ['Bare Soil', '#bcaaa4'], // Brown
-  ['Rock', '#b0bec5'],      // Grey
+  ['Herb', '#a5d6a7'],
+  ['Grass', '#e6ee9c'],
+  ['Litter', '#ffcc80'],
+  ['Bare Soil', '#bcaaa4'],
+  ['Rock', '#b0bec5'],
 ]);
 
 export const WOODY_COLOR_PALETTE = [
-  '#2e7d32', '#00695c', '#1565c0', '#6a1b9a', '#c62828', 
+  '#2e7d32', '#00695c', '#1565c0', '#6a1b9a', '#c62828',
   '#ef6c00', '#f9a825', '#455a64', '#558b2f', '#0277bd'
 ];
 
@@ -22,54 +22,84 @@ export interface PlotVisualizationData {
 }
 
 // --- Physics Helper ---
-// Distributes trees naturally so they don't overlap or look like a grid
 export function distributeTreesInQuadrant(
-  trees: VisualTreeNode[], 
-  quadrant: string
+  trees: VisualTreeNode[],
+  quadrant: string,
+  plotWidth: number = 10,
+  plotHeight: number = 10
 ): VisualTreeNode[] {
-  // Define bounds (0-100 scale) with padding
-  const bounds = {
-    Q1: { xMin: 5, xMax: 45, yMin: 5, yMax: 45 },
-    Q2: { xMin: 55, xMax: 95, yMin: 5, yMax: 45 },
-    Q3: { xMin: 5, xMax: 45, yMin: 55, yMax: 95 },
-    Q4: { xMin: 55, xMax: 95, yMin: 55, yMax: 95 },
-  }[quadrant] || { xMin: 5, xMax: 95, yMin: 5, yMax: 95 };
+  // Calculate quadrant bounds in METERS
+  const midX = plotWidth / 2;
+  const midY = plotHeight / 2;
+  const padding = 0.5; // 0.5m padding from edges
 
-  // 1. Randomize initial positions within bounds
+  const bounds = {
+    Q1: { xMin: padding, xMax: midX - padding, yMin: padding, yMax: midY - padding },           // Top-Left
+    Q2: { xMin: midX + padding, xMax: plotWidth - padding, yMin: padding, yMax: midY - padding }, // Top-Right
+    Q3: { xMin: padding, xMax: midX - padding, yMin: midY + padding, yMax: plotHeight - padding }, // Bottom-Left
+    Q4: { xMin: midX + padding, xMax: plotWidth - padding, yMin: midY + padding, yMax: plotHeight - padding }, // Bottom-Right
+  }[quadrant] || { xMin: 0, xMax: plotWidth, yMin: 0, yMax: plotHeight };
+
+  // Distribute with Subplot Exclusion
   trees.forEach(tree => {
-    tree.x = bounds.xMin + Math.random() * (bounds.xMax - bounds.xMin);
-    tree.y = bounds.yMin + Math.random() * (bounds.yMax - bounds.yMin);
+    let validPosition = false;
+    let attempts = 0;
+
+    while (!validPosition && attempts < 20) {
+      // Generate random position
+      const x = bounds.xMin + Math.random() * (bounds.xMax - bounds.xMin);
+      const y = bounds.yMin + Math.random() * (bounds.yMax - bounds.yMin);
+
+      // Check Subplot Collision (1x1m corners)
+      // SP1 (0,0) to (1,1)
+      // SP2 (9,0) to (10,1)
+      // SP3 (0,9) to (1,10)
+      // SP4 (9,9) to (10,10)
+      // We add a small buffer (1.2m) to be safe
+      const buffer = 1.2;
+      const inSP1 = x < buffer && y < buffer;
+      const inSP2 = x > (plotWidth - buffer) && y < buffer;
+      const inSP3 = x < buffer && y > (plotHeight - buffer);
+      const inSP4 = x > (plotWidth - buffer) && y > (plotHeight - buffer);
+
+      if (!inSP1 && !inSP2 && !inSP3 && !inSP4) {
+        tree.x = x;
+        tree.y = y;
+        validPosition = true;
+      }
+      attempts++;
+    }
+
+    // Fallback if placement failed (should be rare)
+    if (!validPosition) {
+      tree.x = (bounds.xMin + bounds.xMax) / 2;
+      tree.y = (bounds.yMin + bounds.yMax) / 2;
+    }
   });
 
-  // 2. Force Relaxation (Prevent Overlaps)
+  // Simple collision avoidance between trees
   const iterations = 15;
   for (let i = 0; i < iterations; i++) {
     for (let j = 0; j < trees.length; j++) {
       for (let k = j + 1; k < trees.length; k++) {
         const a = trees[j];
         const b = trees[k];
-        
         const dx = b.x - a.x;
         const dy = b.y - a.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        // Min distance based on radius (visual size)
-        const minDist = (a.radius + b.radius) * 1.1; 
+        // Scale radius for collision check (visual radius is pixels, map is meters)
+        // Approximate: 1m = 50px? Let's just use a small meter value for collision
+        const minSep = 0.5; // Minimum 50cm separation
 
-        if (dist < minDist && dist > 0) {
-          const force = (minDist - dist) / 2;
+        if (dist < minSep && dist > 0) {
+          const force = (minSep - dist) / 2;
           const angle = Math.atan2(dy, dx);
-          
-          // Push apart
-          a.x -= Math.cos(angle) * force;
-          a.y -= Math.sin(angle) * force;
-          b.x += Math.cos(angle) * force;
-          b.y += Math.sin(angle) * force;
+          a.x = Math.max(bounds.xMin, Math.min(bounds.xMax, a.x - Math.cos(angle) * force));
+          a.y = Math.max(bounds.yMin, Math.min(bounds.yMax, a.y - Math.sin(angle) * force));
+          b.x = Math.max(bounds.xMin, Math.min(bounds.xMax, b.x + Math.cos(angle) * force));
+          b.y = Math.max(bounds.yMin, Math.min(bounds.yMax, b.y + Math.sin(angle) * force));
         }
       }
-      // Constrain to bounds
-      const t = trees[j];
-      t.x = Math.max(bounds.xMin, Math.min(bounds.xMax, t.x));
-      t.y = Math.max(bounds.yMin, Math.min(bounds.yMax, t.y));
     }
   }
   return trees;
@@ -84,7 +114,7 @@ export const processPlotData = (
   const plotHerb = herbData.filter(d => d.Plot_ID === plotId);
   const plotWoody = woodyData.filter(d => d.Plot_ID === plotId);
 
-  // Generate Legend
+  // Legend
   const woodyLegend = new Map<string, string>();
   const uniqueSpecies = Array.from(new Set(plotWoody.map(d => d.Species_Scientific))).sort();
   uniqueSpecies.forEach((s, i) => woodyLegend.set(s, WOODY_COLOR_PALETTE[i % WOODY_COLOR_PALETTE.length]));
@@ -93,47 +123,47 @@ export const processPlotData = (
   let allVisualTrees: VisualTreeNode[] = [];
   ['Q1', 'Q2', 'Q3', 'Q4'].forEach(q => {
     const quadData = plotWoody.filter(d => d.Quad_ID === q);
-    
     const nodes: VisualTreeNode[] = quadData.map(d => ({
       id: d.Tree_ID,
       species: d.Species_Scientific,
-      x: 0, // Placeholder
-      y: 0, // Placeholder
-      radius: Math.max(1.5, Math.log(d.Total_GBH_cm || 10) * 1.2), // Log scale for realistic size
+      x: 0, y: 0,
+      radius: Math.max(0.15, Math.log(d.Total_GBH_cm || 10) * 0.05), // Scale radius to meters (approx)
       height: d.Height_m || (Math.random() * 15 + 2),
       color: woodyLegend.get(d.Species_Scientific) || '#ccc',
       gbh: d.Total_GBH_cm,
       quadrant: q
     }));
-
-    // Distribute naturally
-    const distributed = distributeTreesInQuadrant(nodes, q);
-    allVisualTrees = [...allVisualTrees, ...distributed];
+    allVisualTrees = [...allVisualTrees, ...distributeTreesInQuadrant(nodes, q)];
   });
 
-  // Process Subplots
+  // Process Subplots (Exact Corners Logic in Meters)
+  // Assuming 10x10m plot, 1x1m subplots
   const subplots: VisualSubplotNode[] = [];
-  ['SP1', 'SP2', 'SP3', 'SP4'].forEach((spId, i) => {
-    const spData = plotHerb.filter(d => d.Subplot_ID === spId);
-    // Fixed corners for subplots
-    const pos = [
-        { x: 2, y: 2 }, { x: 88, y: 2 }, { x: 2, y: 88 }, { x: 88, y: 88 }
-    ][i];
 
-    if (spData.length > 0 || true) { // Show placeholders even if empty
-        subplots.push({
-            id: spId,
-            x: pos.x,
-            y: pos.y,
-            width: 10,
-            height: 10,
-            data: spData.map(d => ({
-                label: d.Layer_Type,
-                value: d['Count_or_Cover%'],
-                color: HERB_LEGEND_COLORS.get(d.Layer_Type) || '#ccc'
-            }))
-        });
-    }
+  // Standard Corner Configurations (Meters)
+  const subplotCorners = [
+    { id: 'SP1', x: 0, y: 0 },   // Top-Left
+    { id: 'SP2', x: 9, y: 0 },   // Top-Right (starts at 9m, ends at 10m)
+    { id: 'SP3', x: 0, y: 9 },   // Bottom-Left
+    { id: 'SP4', x: 9, y: 9 }    // Bottom-Right
+  ];
+
+  subplotCorners.forEach((cfg) => {
+    // Find matching data
+    const spData = plotHerb.filter(d => d.Subplot_ID === cfg.id || d.Subplot_ID.includes(cfg.id));
+
+    subplots.push({
+      id: cfg.id,
+      x: cfg.x,
+      y: cfg.y,
+      width: 1, // 1 meter
+      height: 1, // 1 meter
+      data: spData.map(d => ({
+        label: d.Layer_Type,
+        value: d['Count_or_Cover%'],
+        color: HERB_LEGEND_COLORS.get(d.Layer_Type) || '#ccc'
+      }))
+    });
   });
 
   return {

@@ -57,9 +57,10 @@ import UploadIcon from '@mui/icons-material/Upload';
 
 // Services & Logic
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getProjectById, updateProject } from '../../services/dbService';
+import { getProjectById, updateProject } from '../../services/projectService';
 import { readCSVFile, parseCSVData } from '../../services/dataImportService';
 import PlotExplorer from '../../components/PlotVisualizer/PlotExplorer';
+import FieldDataManager from '../../components/PlotVisualizer/FieldDataManager';
 
 import { Project } from '../../types';
 
@@ -250,7 +251,7 @@ const ProjectViewPage = () => {
         return { trees: [], subplots: [] };
       }
     },
-    enabled: !!id,
+    enabled: !!id && (id === 'proj_1' || id === 'LEGACY-PROJECT-UUID'),
   });
 
   // Update local state when project loads
@@ -441,7 +442,7 @@ const ProjectViewPage = () => {
           <Fade in={true}>
             <Grid container spacing={3}>
               {/* Metrics Row */}
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <MetricCard
                   title="Species Identified"
                   value={speciesData.length || 0}
@@ -450,7 +451,7 @@ const ProjectViewPage = () => {
                   onClick={() => setActiveTab(3)}
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <MetricCard
                   title="Total Plots"
                   value={plotData?.subplots?.length || 0}
@@ -459,7 +460,7 @@ const ProjectViewPage = () => {
                   onClick={() => setActiveTab(1)}
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <MetricCard
                   title="Dominant Species"
                   value={dominantSpecies?.percentage ? `${dominantSpecies.percentage}%` : 'N/A'}
@@ -468,7 +469,7 @@ const ProjectViewPage = () => {
                   color={theme.palette.warning.main}
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
+              <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                 <MetricCard
                   title="Overall Progress"
                   value={`${project.progress || 0}%`}
@@ -479,7 +480,7 @@ const ProjectViewPage = () => {
               </Grid>
 
               {/* Project Notes & Activity */}
-              <Grid item xs={12} md={8}>
+              <Grid size={{ xs: 12, md: 8 }}>
                 <Paper sx={{ p: 3, borderRadius: 3, height: '100%', border: '1px solid', borderColor: 'divider' }} elevation={0}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Typography variant="h6" fontWeight="bold">Project Notes</Typography>
@@ -521,7 +522,7 @@ const ProjectViewPage = () => {
                 </Paper>
               </Grid>
 
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <Paper sx={{ p: 3, borderRadius: 3, height: '100%', border: '1px solid', borderColor: 'divider' }} elevation={0}>
                   <Typography variant="h6" fontWeight="bold" gutterBottom>Team</Typography>
                   <List>
@@ -564,7 +565,14 @@ const ProjectViewPage = () => {
                   <CircularProgress />
                 </Box>
               ) : (
-                <PlotExplorer data={plotData || { trees: [], subplots: [] }} plotId={id || ''} />
+                <FieldDataManager
+                  embedded={true}
+                  projectId={id}
+                  projectDetails={{
+                    name: project.name,
+                    description: project.description || ''
+                  }}
+                />
               )}
             </Paper>
           </Fade>
@@ -574,7 +582,7 @@ const ProjectViewPage = () => {
         {activeTab === 2 && (
           <Fade in={true}>
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <ActionCard
                   title="Canopy Analysis"
                   description="Analyze canopy cover photos, calculate LAI and Gap Fraction."
@@ -584,7 +592,7 @@ const ProjectViewPage = () => {
                   color="success"
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <ActionCard
                   title="Species-Area Curve"
                   description="Generate accumulation curves to estimate species richness."
@@ -594,7 +602,7 @@ const ProjectViewPage = () => {
                   color="primary"
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <ActionCard
                   title="Biodiversity Indices"
                   description="Calculate Shannon, Simpson, and Evenness indices for your plots."
@@ -604,7 +612,7 @@ const ProjectViewPage = () => {
                   color="info"
                 />
               </Grid>
-              <Grid item xs={12} sm={6} md={4}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                 <ActionCard
                   title="Export Report"
                   description="Generate a comprehensive PDF summary of your project findings."
@@ -622,7 +630,7 @@ const ProjectViewPage = () => {
         {activeTab === 3 && (
           <Fade in={true}>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={8}>
+              <Grid size={{ xs: 12, md: 8 }}>
                 <Paper sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider' }} elevation={0}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
                     <Typography variant="h6" fontWeight="bold">Project Files</Typography>
@@ -649,7 +657,7 @@ const ProjectViewPage = () => {
                   />
                 </Paper>
               </Grid>
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <Paper sx={{ p: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider', bgcolor: 'background.default' }} elevation={0}>
                   <Typography variant="subtitle1" fontWeight="bold" gutterBottom>Data Summary</Typography>
                   <List dense>

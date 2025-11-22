@@ -14,46 +14,8 @@
         "dataSources": [],
         "progress": 10.0,
         "totalDataPoints": 0,
-        "lastSynced": "2023-01-01T00:00:00Z"
-    },
-    {
-        "id": "project_1763322256683",
-        "name": "test",
-        "description": "",
-        "createdAt": "2025-11-16T19:44:16.683Z",
-        "updatedAt": "2025-11-16T19:44:16.683Z",
-        "status": "active",
-        "tools": [],
-        "dataSources": [],
-        "progress": 0.0,
-        "totalDataPoints": 0,
-        "lastSynced": "2025-11-16T19:44:16.683Z"
-    },
-    {
-        "id": "project_1763803443782",
-        "name": "Test Project 2",
-        "description": "Description",
-        "createdAt": "2025-11-22T09:24:03.782714Z",
-        "updatedAt": "2025-11-22T09:25:29.633Z",
-        "status": "active",
-        "tools": [],
-        "dataSources": [],
-        "progress": 0.0,
-        "totalDataPoints": 0,
-        "lastSynced": "2025-11-22T09:24:03.782779Z"
-    },
-    {
-        "id": "project_1763803586244",
-        "name": "Test Project 2 Updated",
-        "description": "",
-        "createdAt": "2025-11-22T09:26:26.245012Z",
-        "updatedAt": "2025-11-22T09:26:26.245186Z",
-        "status": "active",
-        "tools": [],
-        "dataSources": [],
-        "progress": 0.0,
-        "totalDataPoints": 0,
-        "lastSynced": "2025-11-22T09:26:26.245212Z"
+        "lastSynced": "2023-01-01T00:00:00Z",
+        "defaultPlotConfiguration": null
     },
     {
         "id": "project_1763804134980",
@@ -66,7 +28,8 @@
         "dataSources": [],
         "progress": 0.0,
         "totalDataPoints": 0,
-        "lastSynced": "2025-11-22T09:35:34.985192Z"
+        "lastSynced": "2025-11-22T09:35:34.985192Z",
+        "defaultPlotConfiguration": null
     },
     {
         "id": "project_1763805560665",
@@ -93,6 +56,43 @@
         ],
         "progress": 0.0,
         "totalDataPoints": 0,
-        "lastSynced": "2025-11-22T09:59:20.668641Z"
+        "lastSynced": "2025-11-22T09:59:20.668641Z",
+        "defaultPlotConfiguration": null
+    },
+    {
+        "id": "project_1763840141223",
+        "name": "Prajakta",
+        "description": "",
+        "createdAt": "2025-11-22T19:35:41.224553Z",
+        "updatedAt": "2025-11-22T19:35:41.225057Z",
+        "status": "active",
+        "tools": [],
+        "dataSources": [],
+        "progress": 0.0,
+        "totalDataPoints": 0,
+        "lastSynced": "2025-11-22T19:35:41.225531Z",
+        "defaultPlotConfiguration": null
+    },
+    {
+        "id": "project_1763840837479",
+        "name": "TEST",
+        "description": "",
+        "createdAt": "2025-11-22T19:47:17.484192Z",
+        "updatedAt": "2025-11-22T19:47:17.484542Z",
+        "status": "active",
+        "tools": [
+            "Plot Visualizer",
+            "Canopy Analysis",
+            "Data Visualization"
+        ],
+        "dataSources": [
+            "Woody Vegetation",
+            "Herb Floor Data",
+            "Field Data"
+        ],
+        "progress": 0.0,
+        "totalDataPoints": 0,
+        "lastSynced": "2025-11-22T19:47:17.484552Z",
+        "defaultPlotConfiguration": null
     }
 ]

@@ -55,7 +55,12 @@ class StaticFilesWithCORS(StaticFiles):
             await send(message)
         await super().__call__(scope, receive, send_with_cors)
 
+from app.infrastructure.initialization import initialize_default_data
+
 # Mount static files to serve images with CORS support
 app.mount("/data", StaticFilesWithCORS(directory="data"), name="data")
+
+# Initialize default data
+initialize_default_data()
 
 logger.info("FastAPI application started.")

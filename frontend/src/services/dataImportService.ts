@@ -1,6 +1,6 @@
 // src/services/dataImportService.ts
 
-import { getAllProjects, updateProject } from './dbService';
+import { updateProject, getProjectById } from './projectService';
 import Papa from 'papaparse'; // Import PapaParse
 
 interface Project {
@@ -103,7 +103,7 @@ export const importFieldData = async (woodyCsvText: string, herbFloorCsvText: st
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(`Backend API call failed: ${response.status} - ${errorData.detail || response.statusText}`);
+      throw new Error('Backend API call failed: ' + response.status + ' - ' + (errorData.detail || response.statusText));
     }
 
     const responseData = await response.json();
@@ -120,13 +120,13 @@ export const importCanopyImages = async (projectId: string, imageFolderPath: str
   try {
     const project = await getProjectById(projectId);
     if (!project) {
-      throw new Error(`Project with id ${projectId} not found`);
+      throw new Error('Project with id ' + projectId + ' not found');
     }
 
     const alreadyImported = project.dataSources.includes('Canopy Images');
 
     // In a real app, you'd count the images. For now, let's add a fixed number.
-    const imageCount = 50; 
+    const imageCount = 50;
 
     // Update the project to include canopy images
     const updatedProject = {
@@ -142,12 +142,6 @@ export const importCanopyImages = async (projectId: string, imageFolderPath: str
     console.error('Error importing canopy images:', error);
     return false;
   }
-};
-
-// Function to get a project by ID
-const getProjectById = async (id: string): Promise<Project | undefined> => {
-  const projects = await getAllProjects();
-  return projects.find(project => project.id === id);
 };
 
 // Utility function to parse CSV data (no longer used for direct import, but kept for other potential uses)
@@ -166,11 +160,11 @@ export const parseCSVData = (csvText: string): Record<string, string>[] => {
 
     const values = currentLine.split(',');
     const obj: Record<string, string> = {};
-    
+
     headers.forEach((header, index) => {
       obj[header] = values[index] ? values[index].trim() : '';
     });
-    
+
     result.push(obj);
   }
 
@@ -206,11 +200,11 @@ export const readCSVFile = async (filePath: string): Promise<string> => {
   try {
     const response = await fetch(filePath);
     if (!response.ok) {
-      throw new Error(`Failed to fetch ${filePath}: ${response.statusText}`);
+      throw new Error('Failed to fetch ' + filePath + ': ' + response.statusText);
     }
     return response.text();
   } catch (error) {
-    console.error(`Error reading CSV file ${filePath}:`, error);
+    console.error('Error reading CSV file ' + filePath + ': ', error);
     throw error;
   }
 };

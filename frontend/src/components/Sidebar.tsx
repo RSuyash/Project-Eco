@@ -4,7 +4,6 @@ import {
   Box,
   Drawer,
   List,
-  ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
@@ -17,30 +16,35 @@ import {
   useTheme,
   useMediaQuery,
   alpha,
-  Badge
+  Badge,
+  Switch,
+  FormControlLabel
 } from '@mui/material';
 
 // Icons
-import DashboardIcon from '@mui/icons-material/Dashboard'; // Home/Overview
-import BarChartIcon from '@mui/icons-material/BarChart'; // Analysis
-import ForestIcon from '@mui/icons-material/Forest'; // Flora
-import PetsIcon from '@mui/icons-material/Pets'; // Fauna
-import LandscapeIcon from '@mui/icons-material/Terrain'; // Landscape
-import ScienceIcon from '@mui/icons-material/Science'; // Data Analysis
-import AccountTreeIcon from '@mui/icons-material/AccountTree'; // Projects
-import MapIcon from '@mui/icons-material/Map'; // Plots
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import ForestIcon from '@mui/icons-material/Forest';
+import PetsIcon from '@mui/icons-material/Pets';
+import LandscapeIcon from '@mui/icons-material/Terrain';
+import ScienceIcon from '@mui/icons-material/Science';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import MapIcon from '@mui/icons-material/Map';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import LogoutIcon from '@mui/icons-material/Logout';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
+
+import { useAppTheme } from '../contexts/ThemeContext';
 
 // ----------------------------------------------------------------------
 // Configuration
 // ----------------------------------------------------------------------
 
-const DRAWER_WIDTH = 260;
-const DRAWER_WIDTH_COLLAPSED = 72;
+const DRAWER_WIDTH = 280;
+const DRAWER_WIDTH_COLLAPSED = 88;
 
 interface SidebarProps {
   isOpen: boolean;
@@ -52,30 +56,29 @@ interface NavItemConfig {
   path?: string;
   icon: React.ReactElement;
   children?: NavItemConfig[];
-  info?: string; // e.g., notification badge
+  info?: string;
 }
 
-// Menu Structure Definition
 const NAV_CONFIG: { subheader: string; items: NavItemConfig[] }[] = [
   {
-    subheader: 'Overview',
+    subheader: 'Workspace',
     items: [
       { title: 'Dashboard', path: '/dashboard', icon: <DashboardIcon /> },
       { title: 'Projects', path: '/dashboard/projects', icon: <AccountTreeIcon /> },
-      { title: 'Plot Management', path: '/dashboard/plots', icon: <MapIcon /> },
+      { title: 'Plots', path: '/dashboard/plots', icon: <MapIcon /> },
     ],
   },
   {
-    subheader: 'Ecological Analysis',
+    subheader: 'Analysis Tools',
     items: [
       {
-        title: 'Analysis Tools',
+        title: 'Ecological Data',
         icon: <BarChartIcon />,
         children: [
           { title: 'Flora & Vegetation', path: '/dashboard/ecological-analysis/flora', icon: <ForestIcon fontSize="small" /> },
           { title: 'Fauna & Wildlife', path: '/dashboard/ecological-analysis/fauna', icon: <PetsIcon fontSize="small" /> },
-          { title: 'Landscape Ecology', path: '/dashboard/ecological-analysis/landscape', icon: <LandscapeIcon fontSize="small" /> },
-          { title: 'Data Analysis', path: '/dashboard/ecological-analysis/data-analysis', icon: <ScienceIcon fontSize="small" /> },
+          { title: 'Landscape', path: '/dashboard/ecological-analysis/landscape', icon: <LandscapeIcon fontSize="small" /> },
+          { title: 'Data Lab', path: '/dashboard/ecological-analysis/data-analysis', icon: <ScienceIcon fontSize="small" /> },
         ],
       },
     ],
@@ -86,27 +89,23 @@ const NAV_CONFIG: { subheader: string; items: NavItemConfig[] }[] = [
 // Sub-Components
 // ----------------------------------------------------------------------
 
-const NavItem = ({ 
-  item, 
-  level = 0, 
-  isOpen, 
+const NavItem = ({
+  item,
+  level = 0,
+  isOpen,
   currentPath,
-  onNavigate 
-}: { 
-  item: NavItemConfig; 
-  level?: number; 
-  isOpen: boolean; // Sidebar expanded state
+  onNavigate
+}: {
+  item: NavItemConfig;
+  level?: number;
+  isOpen: boolean;
   currentPath: string;
   onNavigate: (path: string) => void;
 }) => {
   const theme = useTheme();
   const hasChildren = !!item.children;
-  
-  // Check active state (exact match or parent of active route)
   const isActive = item.path ? currentPath === item.path : false;
   const isChildActive = item.children?.some(child => child.path === currentPath);
-  
-  // Internal state for collapse/expand of submenus
   const [open, setOpen] = useState(isChildActive);
 
   useEffect(() => {
@@ -121,24 +120,22 @@ const NavItem = ({
     }
   };
 
-  // Styles for "Gold Standard" look
   const activeStyle = {
     color: theme.palette.primary.main,
     bgcolor: alpha(theme.palette.primary.main, 0.08),
     fontWeight: 'bold',
-    '& .icon': {
-      color: theme.palette.primary.main,
-    },
+    '& .icon': { color: theme.palette.primary.main },
+    borderRight: `3px solid ${theme.palette.primary.main}`,
   };
 
   const baseStyle = {
     height: 48,
     position: 'relative',
     textTransform: 'capitalize',
-    paddingLeft: theme.spacing(2 + level * 2), // Indent nested items
+    paddingLeft: theme.spacing(2 + level * 2),
     paddingRight: theme.spacing(2.5),
     marginBottom: 0.5,
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: '0 24px 24px 0', // Rounded right side only
     color: theme.palette.text.secondary,
     '&:hover': {
       bgcolor: theme.palette.action.hover,
@@ -148,7 +145,6 @@ const NavItem = ({
     transition: 'all 0.2s ease-in-out',
   };
 
-  // If sidebar is collapsed (mini mode), we render a Tooltip instead of list item text
   if (!isOpen && level === 0) {
     return (
       <Tooltip title={item.title} placement="right" arrow>
@@ -159,22 +155,13 @@ const NavItem = ({
             paddingLeft: 0,
             paddingRight: 0,
             justifyContent: 'center',
+            borderRadius: 2,
+            mx: 1,
             mb: 1,
-            ...(isActive || isChildActive ? activeStyle : {}),
+            ...(isActive || isChildActive ? { ...activeStyle, borderRight: 'none', bgcolor: alpha(theme.palette.primary.main, 0.1) } : {}),
           }}
         >
-          <ListItemIcon
-            className="icon"
-            sx={{
-              minWidth: 0,
-              width: 24,
-              height: 24,
-              color: 'inherit',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
+          <ListItemIcon className="icon" sx={{ minWidth: 0, width: 24, height: 24, color: 'inherit', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             {item.icon}
           </ListItemIcon>
         </ListItemButton>
@@ -191,19 +178,7 @@ const NavItem = ({
           ...(isActive || (hasChildren && open) ? activeStyle : {}),
         }}
       >
-        <ListItemIcon
-          className="icon"
-          sx={{
-            width: 24,
-            height: 24,
-            minWidth: 24,
-            mr: 2,
-            color: 'inherit',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
+        <ListItemIcon className="icon" sx={{ width: 24, height: 24, minWidth: 24, mr: 2, color: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {item.icon}
         </ListItemIcon>
 
@@ -218,13 +193,13 @@ const NavItem = ({
 
         {item.info && (
           <Box component="span" sx={{ ml: 1, lineHeight: 0 }}>
-             <Badge badgeContent={item.info} color="error" variant="dot" />
+            <Badge badgeContent={item.info} color="error" variant="dot" />
           </Box>
         )}
 
         {hasChildren && (
           <Box component="span" sx={{ ml: 1, width: 16, height: 16, display: 'flex', alignItems: 'center' }}>
-             {open ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
+            {open ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
           </Box>
         )}
       </ListItemButton>
@@ -258,6 +233,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { mode, toggleTheme } = useAppTheme();
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -270,75 +246,73 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        bgcolor: theme.palette.mode === 'light' ? '#F9FAFB' : '#1C2531', // Slight contrast from main content
-        borderRight: `1px dashed ${theme.palette.divider}`,
+        bgcolor: theme.palette.background.paper,
+        borderRight: `1px solid ${theme.palette.divider}`,
       }}
     >
       {/* 1. Logo / Brand Area */}
-      <Box sx={{ px: 2.5, py: 3, display: 'flex', alignItems: 'center' }}>
+      <Box sx={{ px: 3, py: 4, display: 'flex', alignItems: 'center' }}>
         {isOpen ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-             <Box 
-                sx={{ 
-                  width: 36, 
-                  height: 36, 
-                  bgcolor: 'primary.main', 
-                  borderRadius: '10px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  color: 'white',
-                  boxShadow: '0px 4px 12px rgba(0,0,0,0.15)'
-                }}
-             >
-               <ForestIcon fontSize="small" />
-             </Box>
-             <Box>
-                <Typography variant="subtitle1" fontWeight={800} lineHeight={1.2} color="text.primary">
-                  EcoData
-                </Typography>
-                <Typography variant="caption" color="text.secondary" fontWeight={500}>
-                  v2.0.0
-                </Typography>
-             </Box>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                bgcolor: 'primary.main',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: theme.palette.primary.contrastText,
+                boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.4)}`
+              }}
+            >
+              <ForestIcon />
+            </Box>
+            <Box>
+              <Typography variant="h6" fontWeight={800} lineHeight={1.1} color="text.primary">
+                EcoData
+              </Typography>
+              <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                Research OS
+              </Typography>
+            </Box>
           </Box>
         ) : (
-          <Box 
-            sx={{ 
-              width: 40, 
-              height: 40, 
-              bgcolor: 'primary.main', 
-              borderRadius: '10px', 
-              display: 'flex', 
-              alignItems: 'center', 
+          <Box
+            sx={{
+              width: 40,
+              height: 40,
+              bgcolor: 'primary.main',
+              borderRadius: '12px',
+              display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
-              color: 'white',
+              color: theme.palette.primary.contrastText,
               mx: 'auto',
               cursor: 'pointer'
             }}
             onClick={onToggle}
           >
-            <ForestIcon fontSize="medium" />
+            <ForestIcon />
           </Box>
         )}
       </Box>
 
-      <Divider sx={{ borderStyle: 'dashed', mb: 1 }} />
-
       {/* 2. Navigation List */}
-      <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 2 }}>
+      <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 0 }}>
         {NAV_CONFIG.map((group) => (
-          <List key={group.subheader} disablePadding sx={{ mb: 2 }}>
+          <List key={group.subheader} disablePadding sx={{ mb: 3 }}>
             {isOpen && (
               <Typography
                 variant="overline"
                 sx={{
-                  px: 1,
+                  px: 3,
                   mb: 1,
                   display: 'block',
                   color: theme.palette.text.disabled,
                   fontWeight: 700,
-                  letterSpacing: 1.1,
+                  letterSpacing: 1.2,
                 }}
               >
                 {group.subheader}
@@ -358,77 +332,49 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         ))}
       </Box>
 
-      <Divider sx={{ borderStyle: 'dashed' }} />
-
-      {/* 3. User / Footer Area */}
-      <Box sx={{ p: 2 }}>
+      {/* 3. Footer / Settings */}
+      <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
         {isOpen ? (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              p: 1.5,
-              borderRadius: 2,
-              bgcolor: alpha(theme.palette.background.paper, 0.8),
-              border: `1px solid ${theme.palette.divider}`,
-              transition: 'all 0.2s',
-              cursor: 'pointer',
-              '&:hover': {
-                bgcolor: theme.palette.action.hover,
-              },
-            }}
-          >
-            <Avatar 
-              src="/static/mock-images/avatars/avatar_default.jpg" 
-              alt="User"
-              sx={{ width: 36, height: 36, mr: 1.5 }}
-            />
-            <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-              <Typography variant="subtitle2" noWrap>
-                Researcher Doe
-              </Typography>
-              <Typography variant="caption" color="text.secondary" noWrap>
-                Lead Ecologist
-              </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {/* Lab Mode Toggle */}
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
+                {mode === 'dark' ? <DarkModeIcon fontSize="small" /> : <LightModeIcon fontSize="small" />}
+                <Typography variant="body2" fontWeight={600}>
+                  {mode === 'dark' ? 'Digital Biosphere' : 'Lab Mode'}
+                </Typography>
+              </Box>
+              <Switch size="small" checked={mode === 'dark'} onChange={toggleTheme} />
             </Box>
-            <SettingsIcon fontSize="small" color="action" />
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                p: 1.5,
+                borderRadius: 2,
+                bgcolor: alpha(theme.palette.action.active, 0.05),
+                cursor: 'pointer',
+                '&:hover': { bgcolor: alpha(theme.palette.action.active, 0.1) },
+              }}
+            >
+              <Avatar sx={{ width: 36, height: 36, mr: 1.5 }} />
+              <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                <Typography variant="subtitle2" noWrap>Researcher Doe</Typography>
+                <Typography variant="caption" color="text.secondary" noWrap>Lead Ecologist</Typography>
+              </Box>
+              <SettingsIcon fontSize="small" color="action" />
+            </Box>
           </Box>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-             <Avatar sx={{ width: 36, height: 36, cursor: 'pointer' }} />
-             <IconButton onClick={onToggle} size="small" sx={{ bgcolor: 'action.selected' }}>
-                <ChevronLeftIcon sx={{ transform: 'rotate(180deg)' }} />
-             </IconButton>
+            <IconButton onClick={toggleTheme} size="small">
+              {mode === 'dark' ? <DarkModeIcon fontSize="small" /> : <LightModeIcon fontSize="small" />}
+            </IconButton>
+            <Avatar sx={{ width: 36, height: 36, cursor: 'pointer' }} />
           </Box>
         )}
       </Box>
-      
-      {/* 4. Desktop Toggle Button (Only visible when open) */}
-      {isOpen && !isMobile && (
-        <Box 
-          sx={{ 
-            position: 'absolute', 
-            top: '50%', 
-            right: -12, 
-            zIndex: 100 
-          }}
-        >
-          <IconButton 
-            size="small" 
-            onClick={onToggle}
-            sx={{ 
-              bgcolor: theme.palette.background.paper, 
-              border: `1px dashed ${theme.palette.divider}`,
-              boxShadow: theme.shadows[2],
-              width: 24, 
-              height: 24,
-              '&:hover': { bgcolor: theme.palette.action.hover }
-            }}
-          >
-            <ChevronLeftIcon fontSize="small" />
-          </IconButton>
-        </Box>
-      )}
     </Box>
   );
 
@@ -443,23 +389,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
         }),
       }}
     >
-      {/* Mobile Drawer */}
       {isMobile ? (
         <Drawer
           open={isOpen}
           onClose={onToggle}
           variant="temporary"
-          PaperProps={{
-            sx: {
-              width: DRAWER_WIDTH,
-              backgroundImage: 'none', // Remove default gradient if any
-            },
-          }}
+          PaperProps={{ sx: { width: DRAWER_WIDTH } }}
         >
           {renderContent}
         </Drawer>
       ) : (
-        /* Desktop Drawer */
         <Drawer
           open={isOpen}
           variant="permanent"
@@ -470,8 +409,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle }) => {
               transition: theme.transitions.create('width', {
                 duration: theme.transitions.duration.standard,
               }),
-              overflow: 'visible', // Allow Toggle button to overflow
-              bgcolor: 'transparent', // We handle bg in content
+              overflow: 'hidden',
+              bgcolor: 'transparent',
             },
           }}
         >

@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:8000/api/analysis';
+import apiClient from './apiClient';
 
 export interface SpeciesRichnessData {
     plot_id: string;
@@ -28,21 +26,21 @@ export interface StructuralData {
 }
 
 export const getSpeciesRichness = async (plotId: string): Promise<SpeciesRichnessData> => {
-    const response = await axios.get(`${API_URL}/species-richness/${plotId}`);
+    const response = await apiClient.get<SpeciesRichnessData>(`/v1/analysis/species-richness/${plotId}`);
     return response.data;
 };
 
 export const getDiversityIndices = async (plotId: string): Promise<DiversityData> => {
-    const response = await axios.get(`${API_URL}/diversity/${plotId}`);
+    const response = await apiClient.get<DiversityData>(`/v1/analysis/diversity/${plotId}`);
     return response.data;
 };
 
 export const getDominanceMetrics = async (plotId: string): Promise<DominanceData[]> => {
-    const response = await axios.get(`${API_URL}/dominance/${plotId}`);
+    const response = await apiClient.get<DominanceData[]>(`/v1/analysis/dominance/${plotId}`);
     return response.data;
 };
 
 export const getStructuralMetrics = async (plotId: string): Promise<StructuralData> => {
-    const response = await axios.get(`${API_URL}/structure/${plotId}`);
+    const response = await apiClient.get<StructuralData>(`/v1/analysis/structure/${plotId}`);
     return response.data;
 };

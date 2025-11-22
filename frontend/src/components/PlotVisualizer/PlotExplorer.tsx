@@ -12,34 +12,69 @@ import {
   Stack,
   Switch,
   FormControlLabel,
-  Divider
+  Divider,
+  useMediaQuery,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from '@mui/material';
 import {
-  Layers as LayersIcon,
-  GridOn as GridIcon,
-  Forest as ForestIcon,
-  Grass as GrassIcon,
-  Map as MapIcon,
-  Refresh
+  GridOn, Forest, Grass, Layers, Map as MapIcon, Refresh, Settings
 } from '@mui/icons-material';
 
 import PlotVisualizer from './PlotVisualizer';
 import { VisualTreeNode, VisualSubplotNode, InteractionMode } from './types';
 import { distributeTreesInQuadrant } from './PlotVisualizerService';
+import { PlotConfiguration } from '../../types/plot';
 
-// --- Props ---
 export interface PlotExplorerProps {
-  data: {
-    trees: any[];
-    subplots: any[];
-  };
+  data: { trees: any[]; subplots: any[] };
   plotId: string;
 }
 
+// --- Mock Configurations for Testing ---
+const PRESET_CONFIGS: Record<string, PlotConfiguration> = {
+  'standard_10x10': {
+    type: 'standard',
+    dimensions: { width: 10, height: 10, unit: 'm' },
+    grid: { rows: 10, cols: 10, labeling: 'sequential' },
+    subdivisions: [
+      { id: 'SP1', type: 'subplot_herb', dimensions: { width: 1, height: 1, unit: 'm' }, position_x: 0, position_y: 0, relative_to: 'plot_origin', required_data: [] },
+      { id: 'SP2', type: 'subplot_herb', dimensions: { width: 1, height: 1, unit: 'm' }, position_x: 9, position_y: 0, relative_to: 'plot_origin', required_data: [] },
+      { id: 'SP3', type: 'subplot_herb', dimensions: { width: 1, height: 1, unit: 'm' }, position_x: 0, position_y: 9, relative_to: 'plot_origin', required_data: [] },
+      { id: 'SP4', type: 'subplot_herb', dimensions: { width: 1, height: 1, unit: 'm' }, position_x: 9, position_y: 9, relative_to: 'plot_origin', required_data: [] }
+    ]
+  },
+  'large_20x20': {
+    type: 'standard',
+    dimensions: { width: 20, height: 20, unit: 'm' },
+    grid: { rows: 20, cols: 20, labeling: 'sequential' },
+    subdivisions: [
+      { id: 'Q1-SP', type: 'subplot_herb', dimensions: { width: 2, height: 2, unit: 'm' }, position_x: 0, position_y: 0, relative_to: 'plot_origin', required_data: [] },
+      { id: 'Q2-SP', type: 'subplot_herb', dimensions: { width: 2, height: 2, unit: 'm' }, position_x: 18, position_y: 0, relative_to: 'plot_origin', required_data: [] },
+      { id: 'Q3-SP', type: 'subplot_herb', dimensions: { width: 2, height: 2, unit: 'm' }, position_x: 0, position_y: 18, relative_to: 'plot_origin', required_data: [] },
+      { id: 'Q4-SP', type: 'subplot_herb', dimensions: { width: 2, height: 2, unit: 'm' }, position_x: 18, position_y: 18, relative_to: 'plot_origin', required_data: [] }
+    ]
+  },
+  'species_area_curve': {
+    type: 'species_area_curve',
+    dimensions: { width: 20, height: 20, unit: 'm' },
+    grid: { rows: 20, cols: 20, labeling: 'sequential' },
+    subdivisions: [
+      { id: '5x5', type: 'custom', dimensions: { width: 5, height: 5, unit: 'm' }, position_x: 0, position_y: 0, relative_to: 'plot_origin', required_data: [] },
+      { id: '10x10', type: 'custom', dimensions: { width: 10, height: 10, unit: 'm' }, position_x: 0, position_y: 0, relative_to: 'plot_origin', required_data: [] },
+      { id: '15x15', type: 'custom', dimensions: { width: 15, height: 15, unit: 'm' }, position_x: 0, position_y: 0, relative_to: 'plot_origin', required_data: [] }
+    ]
+  }
+};
+
 const PlotExplorer: React.FC<PlotExplorerProps> = ({ data, plotId }) => {
   const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   // --- State ---
+  const [activeConfigKey, setActiveConfigKey] = useState<string>('standard_10x10');
   const [settings, setSettings] = useState({
     showGrid: true,
     showQuadrants: true,
@@ -50,28 +85,26 @@ const PlotExplorer: React.FC<PlotExplorerProps> = ({ data, plotId }) => {
   const [interactionMode, setInteractionMode] = useState<InteractionMode>('view');
   const [selectedTreeIds, setSelectedTreeIds] = useState<string[]>([]);
   const [highlightedSpecies, setHighlightedSpecies] = useState<string | null>(null);
-  const [layoutSeed, setLayoutSeed] = useState(0); // To force re-layout
+  const [layoutSeed, setLayoutSeed] = useState(0);
 
-  // --- Data Processing Pipeline ---
+  // --- Data Processing ---
   const visualizationData = useMemo(() => {
-    if (!data) return { trees: [], subplots: [] };
+    const safeData = data || { trees: [], subplots: [] };
 
-    // 1. Trees: Convert raw data to Visual Trees & Run Physics
-    const rawNodes: VisualTreeNode[] = (data.trees || []).map((t: any, i: number) => ({
+    // 1. Trees
+    const rawNodes: VisualTreeNode[] = (safeData.trees || []).map((t: any, i: number) => ({
       id: t.id || `t-${i}`,
       species: t.species || 'Unknown',
-      x: 0, // Reset X/Y for physics engine to take over
-      y: 0,
-      // Calculate Radius based on GBH or Size. 
-      // If input is tiny (0-20 scale), multiply it up. Otherwise assume cm.
-      radius: Math.max(1.5, Math.min(6, (t.gbh || t.size || 10) / 20)),
+      x: 0, y: 0,
+      // Standardize radius: 1.5% to 5% of plot width
+      radius: Math.max(1.5, Math.min(5, (t.gbh || t.size || 10) / 25)),
       height: t.height || (Math.random() * 15 + 2),
       color: t.color || '#2E7D32',
       gbh: t.gbh || t.size || 0,
-      quadrant: t.quadId || t.quadrant || ['Q1', 'Q2', 'Q3', 'Q4'][i % 4] // Fallback to round-robin quadrant
+      quadrant: t.quadId || t.quadrant || ['Q1', 'Q2', 'Q3', 'Q4'][i % 4]
     }));
 
-    // Run Layout Per Quadrant
+    // Physics Layout
     let processedTrees: VisualTreeNode[] = [];
     ['Q1', 'Q2', 'Q3', 'Q4'].forEach(q => {
       const quadTrees = rawNodes.filter(n => n.quadrant === q);
@@ -79,44 +112,26 @@ const PlotExplorer: React.FC<PlotExplorerProps> = ({ data, plotId }) => {
       processedTrees = [...processedTrees, ...distributed];
     });
 
-    // 2. Subplots: Normalize coordinates to 0-100%
-    const processedSubplots: VisualSubplotNode[] = (data.subplots || []).map((s: any, i: number) => {
-      // If x/y are missing or small (<20), map them to corners based on index
-      const defaultPos = [
-        { x: 2, y: 2 }, { x: 88, y: 2 }, { x: 2, y: 88 }, { x: 88, y: 88 }
-      ][i % 4];
+    return { trees: processedTrees };
+  }, [data, layoutSeed]);
 
-      return {
-        id: s.id || `SP-${i + 1}`,
-        // Logic: If val > 20, assume pixels/percent. If <= 20, assume meters (multiply by 10 for %)
-        x: s.x ? (s.x > 20 ? s.x : s.x * 10) : defaultPos.x,
-        y: s.y ? (s.y > 20 ? s.y : s.y * 10) : defaultPos.y,
-        width: 10,
-        height: 10,
-        data: []
-      };
-    });
+  const activeConfig = PRESET_CONFIGS[activeConfigKey];
 
-    return { trees: processedTrees, subplots: processedSubplots };
-  }, [data, layoutSeed]); // Re-run when data or seed changes
-
-  // --- Handlers ---
   const toggleSetting = (key: keyof typeof settings) => {
     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   return (
     <Box sx={{
-      position: 'relative',
-      width: '100%',
-      height: '100%',
-      bgcolor: theme.palette.background.default,
-      overflow: 'hidden',
       display: 'flex',
-      flexDirection: 'column'
+      flexDirection: 'column',
+      height: '100%',
+      width: '100%',
+      bgcolor: 'background.default',
+      overflow: 'hidden'
     }}>
 
-      {/* 1. Toolbar */}
+      {/* 1. Toolbar (Compact) */}
       <Paper
         elevation={0}
         sx={{
@@ -127,14 +142,31 @@ const PlotExplorer: React.FC<PlotExplorerProps> = ({ data, plotId }) => {
           alignItems: 'center',
           justifyContent: 'space-between',
           bgcolor: 'background.paper',
-          zIndex: 10,
-          flexShrink: 0 // Prevent toolbar shrinking
+          flexShrink: 0,
+          gap: 2
         }}
       >
-        <Typography variant="subtitle2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <MapIcon color="primary" fontSize="small" />
-          Plot Explorer: {plotId}
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Typography variant="subtitle2" fontWeight="bold" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <MapIcon color="primary" fontSize="small" />
+            {plotId}
+          </Typography>
+
+          {/* Config Selector */}
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <Select
+              value={activeConfigKey}
+              onChange={(e) => setActiveConfigKey(e.target.value)}
+              displayEmpty
+              variant="outlined"
+              sx={{ height: 32, fontSize: '0.875rem' }}
+            >
+              <MenuItem value="standard_10x10">Standard 10x10m</MenuItem>
+              <MenuItem value="large_20x20">Large 20x20m</MenuItem>
+              <MenuItem value="species_area_curve">Species Area Curve</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
 
         <Stack direction="row" spacing={1}>
           <ToggleButtonGroup
@@ -143,11 +175,12 @@ const PlotExplorer: React.FC<PlotExplorerProps> = ({ data, plotId }) => {
             exclusive
             onChange={(_, v) => v && setInteractionMode(v)}
             aria-label="mode"
+            sx={{ height: 32 }}
           >
-            <ToggleButton value="view">View</ToggleButton>
-            <ToggleButton value="select">Select</ToggleButton>
+            <ToggleButton value="view" sx={{ px: 2 }}>View</ToggleButton>
+            <ToggleButton value="select" sx={{ px: 2 }}>Select</ToggleButton>
           </ToggleButtonGroup>
-          <Tooltip title="Shuffle Layout">
+          <Tooltip title="Re-run Layout">
             <IconButton size="small" onClick={() => setLayoutSeed(s => s + 1)}>
               <Refresh fontSize="small" />
             </IconButton>
@@ -155,7 +188,7 @@ const PlotExplorer: React.FC<PlotExplorerProps> = ({ data, plotId }) => {
         </Stack>
       </Paper>
 
-      {/* 2. Main Canvas Area - Responsive Layout Fix */}
+      {/* 2. Visualization Container (Responsive Fit) */}
       <Box sx={{
         flexGrow: 1,
         position: 'relative',
@@ -163,55 +196,59 @@ const PlotExplorer: React.FC<PlotExplorerProps> = ({ data, plotId }) => {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        bgcolor: theme.palette.mode === 'dark' ? '#121212' : '#f5f5f7'
       }}>
-        {/* The Visualizer Container */}
-        {/* Using 'aspect-ratio: 1 / 1' with 'max-height: 100%' ensures it fits vertically 
-           without overflowing, while 'width: auto' lets the aspect ratio determine width.
-           Fallback width ensures it takes space if aspect-ratio isn't fully supported or needs a base.
-        */}
+        {/* Aspect Ratio Wrapper - Key to "Fitting Right" */}
         <Box sx={{
+          width: '100%',
           height: '100%',
-          width: 'auto', // Let height dictate width via aspect ratio
-          aspectRatio: '1 / 1', // Maintain square shape
-          maxHeight: '100%', // Never exceed parent height
-          maxWidth: '100%', // Never exceed parent width
-          boxShadow: theme.shadows[4],
-          borderRadius: 2,
-          position: 'relative', // For absolute children
-          bgcolor: 'white'
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
         }}>
-          <PlotVisualizer
-            trees={visualizationData.trees}
-            subplots={visualizationData.subplots}
-            settings={settings}
-            interactionMode={interactionMode}
-            highlightedSpecies={highlightedSpecies}
-            selectedTreeIds={selectedTreeIds}
-            onTreeSelect={(id, multi) => {
-              if (!multi) setSelectedTreeIds([id]);
-              else setSelectedTreeIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-            }}
-            onTreeMove={(id, x, y) => {
-              console.log(`Tree ${id} moved to ${x.toFixed(1)}%, ${y.toFixed(1)}%`);
-            }}
-          />
+          <Box sx={{
+            // Use CSS min() to fit within whichever dimension is smaller
+            width: 'min(100%, 100vh - 120px)', // Subtract header/padding space
+            aspectRatio: '1/1',
+            position: 'relative',
+            boxShadow: theme.shadows[8],
+            borderRadius: 2
+          }}>
+            <PlotVisualizer
+              config={activeConfig}
+              trees={visualizationData.trees}
+              interactionMode={interactionMode}
+              highlightedSpecies={highlightedSpecies}
+              selectedTreeIds={selectedTreeIds}
+              onTreeSelect={(id, multi) => {
+                if (!multi) setSelectedTreeIds([id]);
+                else setSelectedTreeIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+              }}
+              onTreeMove={() => { }} // Visual only
+              showGrid={settings.showGrid}
+              showSubplots={settings.showHerb}
+              showTrees={settings.showWoody}
+              showLabels={settings.showLabels}
+            />
+          </Box>
         </Box>
 
-        {/* 3. Floating Control Deck */}
+        {/* 3. Floating HUD Controls (Semi-transparent) */}
         <Paper
-          elevation={6}
+          elevation={4}
           sx={{
             position: 'absolute',
             bottom: 24,
             right: 24,
             p: 2,
             borderRadius: 3,
-            bgcolor: alpha(theme.palette.background.paper, 0.95),
+            bgcolor: alpha(theme.palette.background.paper, 0.85),
             backdropFilter: 'blur(8px)',
-            width: 200,
             border: '1px solid',
-            borderColor: 'divider'
+            borderColor: 'divider',
+            width: 180,
+            display: isMobile ? 'none' : 'block'
           }}
         >
           <Typography variant="caption" fontWeight="bold" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
@@ -220,40 +257,21 @@ const PlotExplorer: React.FC<PlotExplorerProps> = ({ data, plotId }) => {
           <Stack spacing={0}>
             <FormControlLabel
               control={<Switch size="small" checked={settings.showWoody} onChange={() => toggleSetting('showWoody')} />}
-              label={<Box sx={{ display: 'flex', gap: 1, fontSize: '0.85rem' }}><ForestIcon fontSize="small" color={settings.showWoody ? 'primary' : 'disabled'} /> Canopy</Box>}
+              label={<Box sx={{ display: 'flex', gap: 1, fontSize: '0.8rem' }}><Forest fontSize="small" color={settings.showWoody ? 'primary' : 'disabled'} /> Canopy</Box>}
             />
             <FormControlLabel
               control={<Switch size="small" checked={settings.showHerb} onChange={() => toggleSetting('showHerb')} />}
-              label={<Box sx={{ display: 'flex', gap: 1, fontSize: '0.85rem' }}><GrassIcon fontSize="small" color={settings.showHerb ? 'success' : 'disabled'} /> Subplots</Box>}
+              label={<Box sx={{ display: 'flex', gap: 1, fontSize: '0.8rem' }}><Grass fontSize="small" color={settings.showHerb ? 'success' : 'disabled'} /> Subplots</Box>}
             />
             <Divider sx={{ my: 1 }} />
             <FormControlLabel
               control={<Switch size="small" checked={settings.showGrid} onChange={() => toggleSetting('showGrid')} />}
-              label={<Box sx={{ display: 'flex', gap: 1, fontSize: '0.85rem' }}><GridIcon fontSize="small" color="action" /> Grid</Box>}
+              label={<Box sx={{ display: 'flex', gap: 1, fontSize: '0.8rem' }}><GridOn fontSize="small" color="action" /> Grid</Box>}
             />
             <FormControlLabel
               control={<Switch size="small" checked={settings.showQuadrants} onChange={() => toggleSetting('showQuadrants')} />}
-              label={<Box sx={{ display: 'flex', gap: 1, fontSize: '0.85rem' }}><LayersIcon fontSize="small" color="action" /> Quadrants</Box>}
+              label={<Box sx={{ display: 'flex', gap: 1, fontSize: '0.8rem' }}><Layers fontSize="small" color="action" /> Quadrants</Box>}
             />
-          </Stack>
-        </Paper>
-
-        {/* 4. Quick Stats Overlay */}
-        <Paper
-          elevation={4}
-          sx={{
-            position: 'absolute',
-            top: 24,
-            left: 24,
-            p: 1.5,
-            borderRadius: 2,
-            bgcolor: alpha(theme.palette.background.paper, 0.9),
-            pointerEvents: 'none'
-          }}
-        >
-          <Stack spacing={0.5}>
-            <Typography variant="caption" color="text.secondary">Total Individuals</Typography>
-            <Typography variant="h6" lineHeight={1}>{visualizationData.trees.length}</Typography>
           </Stack>
         </Paper>
       </Box>

@@ -3,7 +3,7 @@ import { Box, CircularProgress } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Breadcrumb from '../../components/Breadcrumb';
-import { addProject, updateProject, getProjectById, getAllTools, getAllDataSources } from '../../services/dbService';
+import { addProject, updateProject, getProjectById, getAllTools, getAllDataSources } from '../../services/projectService';
 import { Project } from '../../types';
 import ProjectWizard, { WizardData } from './ProjectWizard';
 

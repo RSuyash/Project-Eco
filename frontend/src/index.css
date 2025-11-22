@@ -1,213 +1,79 @@
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/outfit/500.css';
+@import '@fontsource/outfit/600.css';
+@import '@fontsource/outfit/700.css';
+
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --neon-cyan: #00f3ff;
+  --bio-green: #39ff14;
+}
+
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+  background-color: #050a14; /* Fallback */
+  overflow-x: hidden;
 }
 
-code {
-  font-family: 'Fira Code', monospace;
+/* Glassmorphism Utility Class */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
-/* Dashboard Page Styles */
-.dashboard-page {
-  padding: 20px;
+/* Neon Text Utility */
+.text-neon {
+  color: var(--neon-cyan);
+  text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
 }
 
-.project-grid {
-  margin-top: 20px;
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }
 
-.project-card {
-  height: 100%;
-  transition: transform 0.3s, box-shadow 0.3s;
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
 
-.project-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 243, 255, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); }
 }
 
-.project-card-header {
-  background-color: #1976d2;
-  color: white;
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
 }
 
-.project-card-content {
-  padding: 16px;
-}
-
-.project-card-actions {
-  padding: 16px;
-}
-
-/* Project View Page Styles */
-.project-view-page {
-  padding: 20px;
-  max-width: 1200px;
+/* Layout Utilities */
+.page-container {
+  padding: 2rem;
+  max-width: 1400px;
   margin: 0 auto;
+  min-height: 100vh;
 }
 
-.project-header {
+.flex-center {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.tool-section {
-  margin-bottom: 30px;
-}
-
-.tool-card {
-  margin-bottom: 20px;
-}
-
-.tool-card-header {
-  background-color: #e3f2fd;
-}
-
-/* Breadcrumb Styles */
-.breadcrumb-container {
-  margin-bottom: 20px;
-}
-
-/* Data Grid Styles */
-.data-grid-container {
-  height: 400px;
-  width: 100%;
-  margin-top: 20px;
-}
-
-/* Loading Styles */
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-}
-
-/* Canopy Analysis Page Styles */
-.stepper-container {
-  display: flex;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.stepper-content {
-  flex: 1;
-  min-width: 0; /* Allow flex item to shrink below content size */
-}
-
-.help-panel {
-  width: 300px;
-  position: sticky;
-  top: 20px;
-}
-
-.help-panel.closed {
-  width: 50px;
-}
-
-.help-toggle {
-  position: absolute;
-  right: 0;
-  top: 0;
-  z-index: 10;
-}
-
-.step1-upload-data .drop-zone,
-.step2-run-analysis .analysis-item,
-.step3-view-results .metric-card {
-  padding: 20px;
-  border: 2px dashed #ccc;
-  border-radius: 8px;
-  text-align: center;
-  transition: border-color 0.3s;
-}
-
-.step1-upload-data .drop-zone.drag-active {
-  border-color: #1976d2;
-  background-color: rgba(25, 118, 210, 0.05);
-}
-
-.step1-upload-data .drop-zone-content,
-.step2-run-analysis .analysis-status {
-  display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.step1-upload-data .upload-icon {
-  font-size: 48px;
-  color: #999;
-  margin-bottom: 10px;
+.grid-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
 }
-
-.step-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid #eee;
-}
-
-.step-actions .MuiButton-root {
-  margin: 0 5px;
-}
-
-.metric-card {
-  padding: 20px;
-  text-align: center;
-}
-
-.csv-preview {
-  margin-top: 20px;
-}
-
-.image-preview {
-  margin-top: 20px;
-}
-
-.analysis-status {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.analysis-item {
-  margin: 5px 0;
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .stepper-container {
-    flex-direction: column;
-  }
-
-  .help-panel {
-    width: 100%;
-    margin-top: 20px;
-  }
-
-  .help-panel.closed {
-    width: 100%;
-  }
-}
-
-@media (max-width: 768px) {
-  .project-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .project-header > * {
-    margin-bottom: 10px;
-    width: 100%;
-  }
-}
-

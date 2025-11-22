@@ -1,0 +1,6 @@
+Plot_ID,Location_Name,Quad_ID,Species_Scientific,Growth_Form,Tree_ID,Height_m,Condition,Total_GBH_cm
+P10,Test Location A,Q1,Test Species Alpha,Tree,T100,5.5,Live,45.5
+P10,Test Location A,Q2,Test Species Beta,Tree,T101,6.2,Live,52.3
+P10,Test Location A,Q3,Test Species Gamma,Tree,T102,4.8,Live,38.9
+P11,Test Location B,Q1,Test Species Delta,Tree,T103,7.1,Live,61.2
+P11,Test Location B,Q2,Test Species Epsilon,Tree,T104,5.9,Live,49.8

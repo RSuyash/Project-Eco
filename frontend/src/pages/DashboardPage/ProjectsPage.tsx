@@ -3,12 +3,7 @@ import {
   Box,
   Typography,
   Grid,
-  Paper,
   Container,
-  Button,
-  Card,
-  CardContent,
-  Chip,
   IconButton,
   InputBase,
   Avatar,
@@ -20,20 +15,13 @@ import {
   Menu,
   MenuItem as MuiMenuItem,
   Stack,
-  Divider,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
+  ListItemIcon,
+  SelectChangeEvent,
   useTheme,
   alpha,
   Fade,
   Skeleton,
-  ListItemIcon,
-  SelectChangeEvent,
-  Tooltip
+  Chip
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -43,23 +31,24 @@ import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import GridViewIcon from '@mui/icons-material/GridView';
-import ViewListIcon from '@mui/icons-material/ViewList'; // Cleaner list icon
+import ViewListIcon from '@mui/icons-material/ViewList';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ScienceIcon from '@mui/icons-material/Science';
-import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
-import FilterListIcon from '@mui/icons-material/FilterList';
-import SortIcon from '@mui/icons-material/Sort';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import SortIcon from '@mui/icons-material/Sort';
 
 // Components & Services
 import Breadcrumb from '../../components/Breadcrumb';
-import { getAllProjects, deleteProject } from '../../services/dbService';
+import GlassCard from '../../components/common/GlassCard';
+import NeonButton from '../../components/common/NeonButton';
+import { getAllProjects, addProject, deleteProject } from '../../services/projectService';
 
 // ----------------------------------------------------------------------
 // Types
@@ -76,7 +65,7 @@ interface Project {
   dataSources: string[];
   progress?: number;
   totalDataPoints?: number;
-  team?: string[]; // Mock team data
+  team?: string[];
 }
 
 // ----------------------------------------------------------------------
@@ -86,16 +75,16 @@ interface Project {
 const StatusChip = ({ status }: { status: string }) => {
   const theme = useTheme();
   let color = theme.palette.text.secondary;
-  let bgcolor = theme.palette.action.hover;
+  let bgcolor = alpha(theme.palette.action.active, 0.1);
   let icon = <AccessTimeIcon sx={{ fontSize: 14 }} />;
 
   if (status === 'active') {
-    color = theme.palette.success.main;
-    bgcolor = alpha(theme.palette.success.main, 0.1);
+    color = theme.palette.secondary.main; // Bio Green
+    bgcolor = alpha(theme.palette.secondary.main, 0.1);
     icon = <TrendingUpIcon sx={{ fontSize: 14 }} />;
   } else if (status === 'completed') {
-    color = theme.palette.info.main;
-    bgcolor = alpha(theme.palette.info.main, 0.1);
+    color = theme.palette.primary.main; // Neon Cyan
+    bgcolor = alpha(theme.palette.primary.main, 0.1);
     icon = <CheckCircleOutlineIcon sx={{ fontSize: 14 }} />;
   }
 
@@ -108,74 +97,60 @@ const StatusChip = ({ status }: { status: string }) => {
         bgcolor: bgcolor,
         color: color,
         fontWeight: 700,
-        borderRadius: '6px',
+        borderRadius: '8px',
         border: '1px solid',
-        borderColor: alpha(color, 0.2),
+        borderColor: alpha(color, 0.3),
         '& .MuiChip-icon': { color: 'inherit', ml: 1 },
-        textTransform: 'capitalize'
+        textTransform: 'capitalize',
+        backdropFilter: 'blur(4px)'
       }}
     />
   );
 };
 
 const StatWidget = ({ title, value, icon: Icon, color, delay }: any) => {
-  const theme = useTheme();
-  
   return (
     <Fade in={true} style={{ transitionDelay: `${delay}ms` }}>
-      <Paper
-        elevation={0}
-        sx={{
-          p: 3,
-          height: '100%',
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 3,
-          position: 'relative',
-          overflow: 'hidden',
-          transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-          '&:hover': {
-            transform: 'translateY(-4px)',
-            boxShadow: theme.shadows[4],
-            borderColor: color,
-          }
-        }}
-      >
-        {/* Decorative Circle Background */}
-        <Box
-          sx={{
-            position: 'absolute',
-            top: -20,
-            right: -20,
-            width: 100,
-            height: 100,
-            borderRadius: '50%',
-            background: `radial-gradient(circle, ${alpha(color, 0.2)} 0%, transparent 70%)`,
-            zIndex: 0,
-          }}
-        />
+      <Box>
+        <GlassCard sx={{ p: 3, height: '100%', position: 'relative', overflow: 'hidden' }}>
+          {/* Decorative Glow */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: -40,
+              right: -40,
+              width: 120,
+              height: 120,
+              borderRadius: '50%',
+              background: `radial-gradient(circle, ${alpha(color, 0.3)} 0%, transparent 70%)`,
+              filter: 'blur(20px)',
+              zIndex: 0,
+            }}
+          />
 
-        <Box sx={{ position: 'relative', zIndex: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <Box sx={{ 
-              p: 1, 
-              borderRadius: 2, 
-              bgcolor: alpha(color, 0.1), 
-              color: color, 
-              display: 'flex',
-              mr: 2 
-            }}>
-              <Icon />
+          <Box sx={{ position: 'relative', zIndex: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Box sx={{
+                p: 1.5,
+                borderRadius: '12px',
+                bgcolor: alpha(color, 0.1),
+                color: color,
+                display: 'flex',
+                mr: 2,
+                boxShadow: `0 0 10px ${alpha(color, 0.2)}`
+              }}>
+                <Icon />
+              </Box>
+              <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
+                {title}
+              </Typography>
             </Box>
-            <Typography variant="subtitle2" color="text.secondary" fontWeight={600}>
-              {title}
+            <Typography variant="h3" fontWeight={800} sx={{ color: 'text.primary', textShadow: `0 0 20px ${alpha(color, 0.3)}` }}>
+              {value}
             </Typography>
           </Box>
-          <Typography variant="h3" fontWeight={800} sx={{ color: 'text.primary' }}>
-            {value}
-          </Typography>
-        </Box>
-      </Paper>
+        </GlassCard>
+      </Box>
     </Fade>
   );
 };
@@ -184,15 +159,6 @@ const ProjectGridCard = ({ project, onClick, onDelete, onEdit }: any) => {
   const theme = useTheme();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
-  // Generate a deterministic gradient based on the project ID/Name
-  const gradients = [
-    `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-    `linear-gradient(135deg, #00C9FF 0%, #92FE9D 100%)`,
-    `linear-gradient(135deg, #FC466B 0%, #3F5EFB 100%)`,
-    `linear-gradient(135deg, #FDBB2D 0%, #22C1C3 100%)`
-  ];
-  const bgGradient = gradients[project.name.length % gradients.length];
-
   const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => {
     e.stopPropagation();
     setAnchorEl(e.currentTarget);
@@ -200,47 +166,24 @@ const ProjectGridCard = ({ project, onClick, onDelete, onEdit }: any) => {
   const handleMenuClose = () => setAnchorEl(null);
 
   return (
-    <Card
-      elevation={0}
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        borderRadius: 3,
-        border: '1px solid',
-        borderColor: 'divider',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        cursor: 'pointer',
-        '&:hover': {
-          transform: 'translateY(-5px)',
-          boxShadow: '0 12px 24px -10px rgba(0,0,0,0.15)',
-          borderColor: 'primary.main',
-        },
-      }}
-      onClick={onClick}
-    >
-      {/* Header Banner */}
-      <Box sx={{ height: 8, background: bgGradient }} />
-
-      <CardContent sx={{ flexGrow: 1, p: 3 }}>
+    <GlassCard onClick={onClick} sx={{ height: '100%', display: 'flex', flexDirection: 'column', p: 0 }}>
+      <Box sx={{ p: 3, flexGrow: 1 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-             <StatusChip status={project.status} />
-          </Box>
-          <IconButton size="small" onClick={handleMenuOpen} sx={{ mt: -1, mr: -1 }}>
+          <StatusChip status={project.status} />
+          <IconButton size="small" onClick={handleMenuOpen} sx={{ mt: -1, mr: -1, color: 'text.secondary' }}>
             <MoreVertIcon fontSize="small" />
           </IconButton>
         </Box>
 
-        <Typography variant="h6" fontWeight={700} gutterBottom noWrap>
+        <Typography variant="h5" fontWeight={700} gutterBottom noWrap sx={{ color: 'text.primary' }}>
           {project.name}
         </Typography>
-        
-        <Typography 
-          variant="body2" 
-          color="text.secondary" 
-          sx={{ 
-            mb: 3, 
+
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            mb: 3,
             minHeight: 40,
             display: '-webkit-box',
             WebkitLineClamp: 2,
@@ -254,37 +197,37 @@ const ProjectGridCard = ({ project, onClick, onDelete, onEdit }: any) => {
 
         {/* Progress Section */}
         <Box sx={{ mb: 3 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
             <Typography variant="caption" fontWeight={600} color="text.secondary">Analysis Progress</Typography>
-            <Typography variant="caption" fontWeight={700} color="primary.main">{project.progress || 0}%</Typography>
+            <Typography variant="caption" fontWeight={700} sx={{ color: theme.palette.primary.main }}>{project.progress || 0}%</Typography>
           </Box>
-          <Box sx={{ width: '100%', height: 6, bgcolor: alpha(theme.palette.primary.main, 0.1), borderRadius: 3 }}>
-            <Box 
-              sx={{ 
-                width: `${project.progress || 0}%`, 
-                height: '100%', 
-                bgcolor: 'primary.main', 
+          <Box sx={{ width: '100%', height: 6, bgcolor: alpha(theme.palette.common.white, 0.1), borderRadius: 3 }}>
+            <Box
+              sx={{
+                width: `${project.progress || 0}%`,
+                height: '100%',
+                background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
                 borderRadius: 3,
+                boxShadow: `0 0 10px ${alpha(theme.palette.primary.main, 0.5)}`,
                 transition: 'width 0.5s ease-in-out'
-              }} 
+              }}
             />
           </Box>
         </Box>
 
         {/* Footer Info */}
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-           <AvatarGroup max={3} sx={{ '& .MuiAvatar-root': { width: 24, height: 24, fontSize: 10, border: `2px solid ${theme.palette.background.paper}` } }}>
-              <Avatar alt="User 1" src="/" />
-              <Avatar alt="User 2" src="/" />
-              <Avatar alt="User 3" src="/" />
-           </AvatarGroup>
-           
-           <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <CalendarTodayIcon sx={{ fontSize: 12 }} />
-              {new Date(project.updatedAt).toLocaleDateString()}
-           </Typography>
+          <AvatarGroup max={3} sx={{ '& .MuiAvatar-root': { width: 24, height: 24, fontSize: 10, border: `2px solid ${theme.palette.background.paper}` } }}>
+            <Avatar alt="User 1" src="/" />
+            <Avatar alt="User 2" src="/" />
+          </AvatarGroup>
+
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <CalendarTodayIcon sx={{ fontSize: 12 }} />
+            {new Date(project.updatedAt).toLocaleDateString()}
+          </Typography>
         </Stack>
-      </CardContent>
+      </Box>
 
       {/* Context Menu */}
       <Menu
@@ -292,23 +235,30 @@ const ProjectGridCard = ({ project, onClick, onDelete, onEdit }: any) => {
         open={Boolean(anchorEl)}
         onClose={handleMenuClose}
         onClick={(e) => e.stopPropagation()}
-        PaperProps={{ sx: { minWidth: 140, borderRadius: 2, boxShadow: theme.shadows[3] } }}
+        PaperProps={{
+          sx: {
+            minWidth: 140,
+            borderRadius: 2,
+            background: 'rgba(10, 31, 28, 0.9)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255,255,255,0.1)'
+          }
+        }}
       >
         <MuiMenuItem onClick={() => { onEdit(project.id); handleMenuClose(); }}>
-          <ListItemIcon><EditOutlinedIcon fontSize="small" /></ListItemIcon>
-          <Typography variant="body2">Edit</Typography>
+          <ListItemIcon><EditOutlinedIcon fontSize="small" sx={{ color: 'text.secondary' }} /></ListItemIcon>
+          <Typography variant="body2" color="text.primary">Edit</Typography>
         </MuiMenuItem>
         <MuiMenuItem onClick={() => { onClick(); handleMenuClose(); }}>
-           <ListItemIcon><VisibilityOutlinedIcon fontSize="small" /></ListItemIcon>
-           <Typography variant="body2">View</Typography>
+          <ListItemIcon><VisibilityOutlinedIcon fontSize="small" sx={{ color: 'text.secondary' }} /></ListItemIcon>
+          <Typography variant="body2" color="text.primary">View</Typography>
         </MuiMenuItem>
-        <Divider />
         <MuiMenuItem onClick={() => { onDelete(project.id); handleMenuClose(); }} sx={{ color: 'error.main' }}>
           <ListItemIcon><DeleteOutlineIcon fontSize="small" color="error" /></ListItemIcon>
           <Typography variant="body2">Delete</Typography>
         </MuiMenuItem>
       </Menu>
-    </Card>
+    </GlassCard>
   );
 };
 
@@ -382,35 +332,26 @@ const ProjectsPage = () => {
   return (
     <Box sx={{ minHeight: '100vh', pb: 8 }}>
       <Breadcrumb />
-      
+
       <Container maxWidth="xl" sx={{ mt: 3 }}>
-        
+
         {/* Header Section */}
         <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', md: 'center' }} spacing={2} mb={4}>
           <Box>
-            <Typography variant="h3" fontWeight={800} sx={{ mb: 0.5, letterSpacing: '-0.02em' }}>
+            <Typography variant="h2" sx={{ mb: 0.5, background: `linear-gradient(90deg, #fff 0%, ${theme.palette.primary.main} 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               Projects
             </Typography>
             <Typography variant="body1" color="text.secondary">
               Manage your research, track progress, and analyze ecological data.
             </Typography>
           </Box>
-          <Button
+          <NeonButton
             variant="contained"
-            size="large"
             startIcon={<AddIcon />}
             onClick={() => navigate('/dashboard/projects/new')}
-            sx={{
-              px: 3,
-              py: 1.2,
-              borderRadius: 2,
-              fontWeight: 600,
-              boxShadow: theme.shadows[4],
-              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-            }}
           >
             New Project
-          </Button>
+          </NeonButton>
         </Stack>
 
         {/* Statistics Row */}
@@ -419,44 +360,38 @@ const ProjectsPage = () => {
             <StatWidget title="Total Projects" value={stats.total} icon={FolderOpenIcon} color={theme.palette.primary.main} delay={0} />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <StatWidget title="Active Research" value={stats.active} icon={ScienceIcon} color={theme.palette.success.main} delay={100} />
+            <StatWidget title="Active Research" value={stats.active} icon={ScienceIcon} color={theme.palette.secondary.main} delay={100} />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <StatWidget title="Completed" value={stats.completed} icon={CheckCircleOutlineIcon} color={theme.palette.info.main} delay={200} />
+            <StatWidget title="Completed" value={stats.completed} icon={CheckCircleOutlineIcon} color="#00b8ff" delay={200} />
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
-            <StatWidget title="Data Points" value={stats.dataPoints} icon={TrendingUpIcon} color={theme.palette.warning.main} delay={300} />
+            <StatWidget title="Data Points" value={stats.dataPoints} icon={TrendingUpIcon} color="#ff4d00" delay={300} />
           </Grid>
         </Grid>
 
         {/* Toolbar */}
-        <Paper
-          elevation={0}
+        <GlassCard
           sx={{
             p: 2,
             mb: 3,
-            borderRadius: 3,
-            border: '1px solid',
-            borderColor: 'divider',
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
             alignItems: 'center',
             gap: 2,
-            bgcolor: alpha(theme.palette.background.paper, 0.6),
-            backdropFilter: 'blur(10px)'
           }}
         >
           {/* Search */}
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            bgcolor: alpha(theme.palette.action.active, 0.05), 
-            borderRadius: 2, 
-            px: 2, 
-            py: 0.5, 
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: alpha(theme.palette.common.white, 0.05),
+            borderRadius: 2,
+            px: 2,
+            py: 0.5,
             width: { xs: '100%', md: 320 },
             border: '1px solid transparent',
-            '&:focus-within': { borderColor: 'primary.main', bgcolor: 'background.paper' },
+            '&:focus-within': { borderColor: 'primary.main', bgcolor: alpha(theme.palette.common.white, 0.1) },
             transition: 'all 0.2s'
           }}>
             <SearchIcon sx={{ color: 'text.secondary', mr: 1 }} />
@@ -465,6 +400,7 @@ const ProjectsPage = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               fullWidth
+              sx={{ color: 'text.primary' }}
             />
             {searchQuery && (
               <IconButton size="small" onClick={() => setSearchQuery('')}>
@@ -506,16 +442,16 @@ const ProjectsPage = () => {
             </FormControl>
 
             <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 0.5, display: 'flex' }}>
-              <IconButton 
-                size="small" 
+              <IconButton
+                size="small"
                 onClick={() => setViewMode('grid')}
                 color={viewMode === 'grid' ? 'primary' : 'default'}
                 sx={{ borderRadius: 1.5 }}
               >
                 <GridViewIcon fontSize="small" />
               </IconButton>
-              <IconButton 
-                size="small" 
+              <IconButton
+                size="small"
                 onClick={() => setViewMode('list')}
                 color={viewMode === 'list' ? 'primary' : 'default'}
                 sx={{ borderRadius: 1.5 }}
@@ -524,27 +460,24 @@ const ProjectsPage = () => {
               </IconButton>
             </Box>
           </Stack>
-        </Paper>
+        </GlassCard>
 
         {/* Content Area */}
         {isLoading ? (
           <Grid container spacing={3}>
             {[1, 2, 3, 4].map((n) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={n}>
-                <Skeleton variant="rectangular" height={280} sx={{ borderRadius: 3 }} />
+                <Skeleton variant="rectangular" height={280} sx={{ borderRadius: 3, bgcolor: 'rgba(255,255,255,0.05)' }} />
               </Grid>
             ))}
           </Grid>
         ) : filteredProjects.length === 0 ? (
-          <Paper 
-            elevation={0}
-            sx={{ 
-              py: 8, 
-              textAlign: 'center', 
-              bgcolor: 'transparent',
-              border: '2px dashed', 
-              borderColor: 'divider', 
-              borderRadius: 4 
+          <GlassCard
+            sx={{
+              py: 8,
+              textAlign: 'center',
+              border: '2px dashed',
+              borderColor: 'divider',
             }}
           >
             <Box sx={{ mb: 2, color: 'text.secondary', opacity: 0.5 }}>
@@ -554,103 +487,25 @@ const ProjectsPage = () => {
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               Adjust your filters or create a new project to get started.
             </Typography>
-            <Button variant="outlined" onClick={() => { setSearchQuery(''); setFilterStatus('all'); }}>
+            <NeonButton variant="outlined" onClick={() => { setSearchQuery(''); setFilterStatus('all'); }}>
               Clear Filters
-            </Button>
-          </Paper>
+            </NeonButton>
+          </GlassCard>
         ) : (
-          <>
-            {viewMode === 'grid' ? (
-              <Grid container spacing={3}>
-                {filteredProjects.map((project, idx) => (
-                  <Fade in={true} key={project.id} style={{ transitionDelay: `${idx * 50}ms` }}>
-                    <Grid item xs={12} sm={6} md={4} lg={3}>
-                      <ProjectGridCard 
-                        project={project} 
-                        onClick={() => navigate(`/dashboard/projects/${project.id}/view`)}
-                        onDelete={handleDelete}
-                        onEdit={handleEdit}
-                      />
-                    </Grid>
-                  </Fade>
-                ))}
-              </Grid>
-            ) : (
-              <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 3, overflow: 'hidden' }}>
-                <Table>
-                  <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.04) }}>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 600 }}>Project Name</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Progress</TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>Last Updated</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 600 }}>Actions</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {filteredProjects.map((project) => (
-                      <TableRow 
-                        key={project.id}
-                        hover
-                        sx={{ 
-                          cursor: 'pointer', 
-                          transition: 'background-color 0.2s',
-                          '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.02) } 
-                        }}
-                        onClick={() => navigate(`/dashboard/projects/${project.id}/view`)}
-                      >
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                            <Avatar variant="rounded" sx={{ bgcolor: 'primary.main', borderRadius: 2 }}>
-                              {project.name.charAt(0)}
-                            </Avatar>
-                            <Box>
-                              <Typography variant="subtitle2" fontWeight={700}>{project.name}</Typography>
-                              <Typography variant="caption" color="text.secondary" noWrap>
-                                {project.description?.substring(0, 40) || 'No description'}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <StatusChip status={project.status} />
-                        </TableCell>
-                        <TableCell sx={{ width: 200 }}>
-                          <Stack direction="row" alignItems="center" spacing={1}>
-                            <Box sx={{ flexGrow: 1, height: 6, bgcolor: 'divider', borderRadius: 3 }}>
-                              <Box sx={{ width: `${project.progress || 0}%`, height: '100%', bgcolor: 'primary.main', borderRadius: 3 }} />
-                            </Box>
-                            <Typography variant="caption" fontWeight={600}>{project.progress || 0}%</Typography>
-                          </Stack>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {new Date(project.updatedAt).toLocaleDateString()}
-                          </Typography>
-                        </TableCell>
-                        <TableCell align="right">
-                          <IconButton 
-                            size="small" 
-                            onClick={(e) => { e.stopPropagation(); handleEdit(project.id); }}
-                            sx={{ mr: 1 }}
-                          >
-                            <EditOutlinedIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton 
-                            size="small" 
-                            onClick={(e) => { e.stopPropagation(); handleDelete(project.id); }}
-                            color="error"
-                          >
-                            <DeleteOutlineIcon fontSize="small" />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
-          </>
+          <Grid container spacing={3}>
+            {filteredProjects.map((project, idx) => (
+              <Fade in={true} key={project.id} style={{ transitionDelay: `${idx * 50}ms` }}>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
+                  <ProjectGridCard
+                    project={project}
+                    onClick={() => navigate(`/dashboard/projects/${project.id}/view`)}
+                    onDelete={handleDelete}
+                    onEdit={handleEdit}
+                  />
+                </Grid>
+              </Fade>
+            ))}
+          </Grid>
         )}
       </Container>
     </Box>

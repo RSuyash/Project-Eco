@@ -1,13 +1,17 @@
-from fastapi import APIRouter, HTTPException, Body, UploadFile, File, Query
+from fastapi import APIRouter, HTTPException, Body, UploadFile, File, Query, Depends
 from fastapi.responses import JSONResponse, FileResponse
 from app.services.canopy import canopy_analyzer
-from app.services.visualization import data_provider, plot_generator
+from app.services.visualization import plot_generator
 from app.core.config import IMAGE_DIR
+from app.application.services.analysis_service import AnalysisService
+from app.api.dependencies import get_analysis_service
 import os
 import pandas as pd
 import shutil
-import uuid # For generating unique filenames
+import uuid
+import logging
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # --- Canopy Analysis Endpoint ---
@@ -43,19 +47,23 @@ async def analyze_canopy_image_endpoint(
 # --- Plot Data Endpoints ---
 
 @router.get("/plot-data/{plot_name}/{plot_id}")
-async def get_plot_data_endpoint(plot_name: str, plot_id: str):
+async def get_plot_data_endpoint(
+    plot_name: str, 
+    plot_id: str,
+    service: AnalysisService = Depends(get_analysis_service)
+):
     """
     Returns the JSON data required to generate a specific plot.
     """
     data_func_map = {
-        "plant_composition": data_provider.get_data_for_plant_composition,
-        "schematic_distribution": data_provider.get_data_for_schematic_distribution,
-        "species_distribution": data_provider.get_data_for_species_distribution,
-        "co2_by_quadrant": data_provider.get_data_for_co2_by_quadrant,
-        "tree_contribution": data_provider.get_data_for_tree_contribution,
-        "co2_comparison": data_provider.get_data_for_co2_comparison,
-        "biomass_comparison": data_provider.get_data_for_biomass_comparison,
-        "canopy_summary": data_provider.get_data_for_canopy_summary,
+        "plant_composition": service.get_data_for_plant_composition,
+        "schematic_distribution": service.get_data_for_schematic_distribution,
+        "species_distribution": service.get_data_for_species_distribution,
+        "co2_by_quadrant": service.get_data_for_co2_by_quadrant,
+        "tree_contribution": service.get_data_for_tree_contribution,
+        "co2_comparison": service.get_data_for_co2_comparison,
+        "biomass_comparison": service.get_data_for_biomass_comparison,
+        "canopy_summary": service.get_data_for_canopy_summary,
     }
     
     data_func = data_func_map.get(plot_name)
@@ -81,24 +89,28 @@ async def get_plot_data_endpoint(plot_name: str, plot_id: str):
 # --- Plot Generation Endpoints ---
 
 @router.post("/generate-plot/{plot_name}/{plot_id}")
-async def generate_plot_endpoint(plot_name: str, plot_id: str):
+async def generate_plot_endpoint(
+    plot_name: str, 
+    plot_id: str,
+    service: AnalysisService = Depends(get_analysis_service)
+):
     """
     Generates a single plot on the server and returns the path to the file.
     """
     # Map plot names to their data provider and plot generator functions
     plot_map = {
         "nested_sampling_design": (None, plot_generator.generate_figure_1_nested_sampling_design),
-        "plant_composition": (data_provider.get_data_for_plant_composition, plot_generator.generate_figure_2_plant_composition),
-        "schematic_distribution": (data_provider.get_data_for_schematic_distribution, plot_generator.generate_figure_3_schematic_distribution),
-        "species_distribution": (data_provider.get_data_for_species_distribution, plot_generator.generate_figure_4_species_distribution),
-        "co2_by_quadrant_m1": (lambda pid: data_provider.get_data_for_co2_by_quadrant(pid)[0], plot_generator.generate_figure_5_co2_by_quadrant_m1),
-        "tree_contribution_m1": (data_provider.get_data_for_tree_contribution, plot_generator.generate_figure_6_tree_contribution_m1),
-        "co2_by_quadrant_m2": (lambda pid: data_provider.get_data_for_co2_by_quadrant(pid)[1], plot_generator.generate_figure_7_co2_by_quadrant_m2),
-        "tree_contribution_m2": (data_provider.get_data_for_tree_contribution, plot_generator.generate_figure_8_tree_contribution_m2),
-        "co2_comparison": (data_provider.get_data_for_co2_comparison, plot_generator.generate_figure_9_co2_comparison),
-        "biomass_comparison": (data_provider.get_data_for_biomass_comparison, plot_generator.generate_figure_10_biomass_comparison),
-        "canopy_cover_summary": (data_provider.get_data_for_canopy_summary, plot_generator.generate_figure_11_canopy_cover_summary),
-        "lai_summary": (data_provider.get_data_for_canopy_summary, plot_generator.generate_figure_12_lai_summary),
+        "plant_composition": (service.get_data_for_plant_composition, plot_generator.generate_figure_2_plant_composition),
+        "schematic_distribution": (service.get_data_for_schematic_distribution, plot_generator.generate_figure_3_schematic_distribution),
+        "species_distribution": (service.get_data_for_species_distribution, plot_generator.generate_figure_4_species_distribution),
+        "co2_by_quadrant_m1": (lambda pid: service.get_data_for_co2_by_quadrant(pid)[0] if service.get_data_for_co2_by_quadrant(pid) else None, plot_generator.generate_figure_5_co2_by_quadrant_m1),
+        "tree_contribution_m1": (service.get_data_for_tree_contribution, plot_generator.generate_figure_6_tree_contribution_m1),
+        "co2_by_quadrant_m2": (lambda pid: service.get_data_for_co2_by_quadrant(pid)[1] if service.get_data_for_co2_by_quadrant(pid) else None, plot_generator.generate_figure_7_co2_by_quadrant_m2),
+        "tree_contribution_m2": (service.get_data_for_tree_contribution, plot_generator.generate_figure_8_tree_contribution_m2),
+        "co2_comparison": (service.get_data_for_co2_comparison, plot_generator.generate_figure_9_co2_comparison),
+        "biomass_comparison": (service.get_data_for_biomass_comparison, plot_generator.generate_figure_10_biomass_comparison),
+        "canopy_cover_summary": (service.get_data_for_canopy_summary, plot_generator.generate_figure_11_canopy_cover_summary),
+        "lai_summary": (service.get_data_for_canopy_summary, plot_generator.generate_figure_12_lai_summary),
     }
 
     if plot_name not in plot_map:

@@ -46,7 +46,7 @@ import {
 } from '@mui/icons-material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
-import { getProjectById } from '../../services/dbService';
+import { getProjectById } from '../../services/projectService';
 import { analyzeCanopyPhoto, CanopyAnalysisResult, loadExistingCanopyImages } from '../../services/canopyAnalysisService';
 import { initializeImageMetadataWithCSVData } from '../../services/imageMetadataService';
 
